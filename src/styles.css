@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "SF Pro Text", "SF Pro Display", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", system-ui, sans-serif;
+  --font-mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  --color-desktop: #0b0d12;
+  --color-desktop-mist: #1a2744;
+  --color-desktop-deep: #101722;
+  --color-window: #1c1c1e;
+  --color-titlebar: #2c2c2e;
+  --color-sidebar: #232325;
+  --color-rail: #1a1a1c;
+  --color-panel: #2c2c2e;
+  --color-elevated: #3a3a3c;
+  --color-composer: #2a2a2c;
+  --color-fg: #f5f5f7;
+  --color-fg-muted: #a1a1a6;
+  --color-fg-subtle: #6e6e73;
+  --color-border: rgb(255 255 255 / 0.08);
+  --color-border-strong: rgb(255 255 255 / 0.16);
+  --color-accent: #0a84ff;
+  --color-accent-fg: #f5f5f7;
+  --color-accent-soft: rgb(10 132 255 / 0.18);
+  --color-traffic-close: #ff5f57;
+  --color-traffic-min: #febc2e;
+  --color-traffic-max: #28c840;
+  --color-success: #30d158;
+  --color-warn: #ffd60a;
+  --color-danger: #ff453a;
+  --color-online: #30d158;
+  --color-away: #ffd60a;
+  --color-dnd: #ff453a;
+  --color-dock: rgb(40 40 44 / 0.72);
+  --color-menubar: rgb(22 22 24 / 0.55);
+  --color-selection: rgb(10 132 255 / 0.28);
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-window: 12px;
+  --radius-pill: 999px;
+
+  --shadow-window: 0 24px 80px rgb(0 0 0 / 0.55), 0 2px 8px rgb(0 0 0 / 0.35);
+  --shadow-dock: 0 12px 40px rgb(0 0 0 / 0.45);
+  --shadow-menu: 0 10px 40px rgb(0 0 0 / 0.4);
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html,
+  body,
+  #app {
+    min-height: 100%;
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-desktop);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-elevated) transparent;
+  }
+}
+
+@layer utilities {
+  .relay-scroll {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .relay-scroll::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  .relay-scroll::-webkit-scrollbar-thumb {
+    background: var(--color-elevated);
+    border-radius: var(--radius-pill);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
