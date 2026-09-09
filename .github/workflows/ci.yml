@@ -10,11 +10,6 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  DATABASE_URL: postgres://zoreon:zoreon@127.0.0.1:5432/zoreon
-  BETTER_AUTH_SECRET: ci-better-auth-secret-not-for-prod
-  BETTER_AUTH_URL: http://127.0.0.1:8081
-
 jobs:
   unit:
     name: Unit / typecheck / build
@@ -28,12 +23,17 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
+      # No DATABASE_URL — migrate skips; smoke/e2e jobs own Postgres.
       - run: npm run build
 
   smoke-script:
     name: customer-smoke.sh (preview)
     runs-on: ubuntu-latest
     needs: unit
+    env:
+      DATABASE_URL: postgres://zoreon:zoreon@127.0.0.1:5432/zoreon
+      BETTER_AUTH_SECRET: ci-better-auth-secret-not-for-prod
+      BETTER_AUTH_URL: http://127.0.0.1:8081
     services:
       postgres:
         image: postgres:16-alpine
@@ -81,6 +81,10 @@ jobs:
     name: Playwright E2E
     runs-on: ubuntu-latest
     needs: unit
+    env:
+      DATABASE_URL: postgres://zoreon:zoreon@127.0.0.1:5432/zoreon
+      BETTER_AUTH_SECRET: ci-better-auth-secret-not-for-prod
+      BETTER_AUTH_URL: http://127.0.0.1:8081
     services:
       postgres:
         image: postgres:16-alpine
