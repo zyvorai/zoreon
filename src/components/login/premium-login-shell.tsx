@@ -43,7 +43,7 @@ export function PremiumLoginShell({
   heroSubheadline,
   heroCta,
   accent = "sky",
-  chapterNote = "Zyvor Agora · sign in to continue",
+  chapterNote = "Zoreon · sign in to continue",
   pills,
   panelTitle,
   panelSubtitle,
@@ -57,7 +57,7 @@ export function PremiumLoginShell({
     heroSubheadline ?? productSubtitle ?? "War rooms, threads, and huddles — scroll to sign in.";
   const formHeading =
     panelSubtitle ?? (panelTitle && panelTitle !== "Sign in" ? panelTitle : "Sign in");
-  const wordmark = (productWordmark ?? productName).trim() || "Agora";
+  const wordmark = (productWordmark ?? productName).trim() || "Zoreon";
 
   return (
     <div className="login-page login-store-page flex min-h-screen flex-col">
@@ -125,6 +125,7 @@ export function LoginSubmit({
   className = "",
   onClick,
   type = "submit",
+  variant = "primary",
 }: {
   loading?: boolean;
   disabled?: boolean;
@@ -132,15 +133,44 @@ export function LoginSubmit({
   className?: string;
   onClick?: () => void;
   type?: "submit" | "button";
+  variant?: "primary" | "secondary";
 }) {
   return (
     <button
       type={type}
       disabled={disabled || loading}
       onClick={onClick}
-      className={`login-btn-primary ${className}`.trim()}
+      className={`${variant === "secondary" ? "login-btn-secondary" : "login-btn-primary"} ${className}`.trim()}
     >
       {children}
     </button>
+  );
+}
+
+export function LoginField({
+  label,
+  id,
+  children,
+}: {
+  label: string;
+  id: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="mb-4">
+      <label htmlFor={id} className="mb-1.5 block text-xs font-medium text-zinc-500">
+        {label}
+      </label>
+      <div className="group relative">{children}</div>
+    </div>
+  );
+}
+
+export function LoginDivider({ label = "or" }: { label?: string }) {
+  return (
+    <div className="relative mt-2 py-3 text-center text-xs uppercase tracking-[0.18em] text-zinc-400">
+      <span className="relative z-[1] bg-white px-3">{label}</span>
+      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 border-t border-zinc-200" />
+    </div>
   );
 }

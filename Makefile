@@ -1,4 +1,4 @@
-# Agora — common Make targets (guestkit-style H= / U=)
+# Zoreon — common Make targets (guestkit-style H= / U=)
 
 H ?=
 U ?= sus
@@ -8,7 +8,7 @@ ARGS ?=
 .PHONY: help deploy-remote deploy-remote-uninstall
 
 help:
-	@echo "Agora"
+	@echo "Zoreon"
 	@echo "  make deploy-remote H=<host> U=sus [PORT=30591]"
 	@echo "  make deploy-remote-uninstall H=<host> U=sus"
 	@echo "  ./scripts/deploy-remote.sh --help"

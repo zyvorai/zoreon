@@ -11,8 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SigninRouteImport } from './routes/signin'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as JoinRouteImport } from './routes/join'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiZoreonEventsRouteImport } from './routes/api/zoreon/events'
+import { Route as ApiRtcRouteImport } from './routes/api/rtc'
 
 const SigninRoute = SigninRouteImport.update({
   id: '/signin',
@@ -22,6 +25,11 @@ const SigninRoute = SigninRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JoinRoute = JoinRouteImport.update({
+  id: '/join',
+  path: '/join',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -34,39 +42,61 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiZoreonEventsRoute = ApiZoreonEventsRouteImport.update({
+  id: '/api/zoreon/events',
+  path: '/api/zoreon/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiRtcRoute = ApiRtcRouteImport.update({
+  id: '/api/rtc',
+  path: '/api/rtc',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/join': typeof JoinRoute
   '/signin': typeof SigninRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/zoreon/events': typeof ApiZoreonEventsRoute
+  '/api/rtc': typeof ApiRtcRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/join': typeof JoinRoute
   '/signin': typeof SigninRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/zoreon/events': typeof ApiZoreonEventsRoute
+  '/api/rtc': typeof ApiRtcRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/join': typeof JoinRoute
   '/signin': typeof SigninRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/zoreon/events': typeof ApiZoreonEventsRoute
+  '/api/rtc': typeof ApiRtcRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/signin' | '/api/auth/$'
+  fullPaths: '/' | '/login' | '/join' | '/signin' | '/api/auth/$' | '/api/zoreon/events' | '/api/rtc'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/signin' | '/api/auth/$'
-  id: '__root__' | '/' | '/login' | '/signin' | '/api/auth/$'
+  to: '/' | '/login' | '/join' | '/signin' | '/api/auth/$' | '/api/zoreon/events' | '/api/rtc'
+  id: '__root__' | '/' | '/login' | '/join' | '/signin' | '/api/auth/$' | '/api/zoreon/events' | '/api/rtc'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
+  JoinRoute: typeof JoinRoute
   SigninRoute: typeof SigninRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiZoreonEventsRoute: typeof ApiZoreonEventsRoute
+  ApiRtcRoute: typeof ApiRtcRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -85,6 +115,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/join': {
+      id: '/join'
+      path: '/join'
+      fullPath: '/join'
+      preLoaderRoute: typeof JoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signin': {
       id: '/signin'
       path: '/signin'
@@ -99,14 +136,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/zoreon/events': {
+      id: '/api/zoreon/events'
+      path: '/api/zoreon/events'
+      fullPath: '/api/zoreon/events'
+      preLoaderRoute: typeof ApiZoreonEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/rtc': {
+      id: '/api/rtc'
+      path: '/api/rtc'
+      fullPath: '/api/rtc'
+      preLoaderRoute: typeof ApiRtcRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
+  JoinRoute: JoinRoute,
   SigninRoute: SigninRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiZoreonEventsRoute: ApiZoreonEventsRoute,
+  ApiRtcRoute: ApiRtcRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

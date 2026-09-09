@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
 import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAgora } from "@/store/use-agora";
+import { useZoreon } from "@/store/use-zoreon";
 
 export function WindowFrame({ children }: { children: ReactNode }) {
-  const windowMode = useAgora((s) => s.windowMode);
-  const setWindowMode = useAgora((s) => s.setWindowMode);
-  const setPaletteOpen = useAgora((s) => s.setPaletteOpen);
+  const windowMode = useZoreon((s) => s.windowMode);
+  const setWindowMode = useZoreon((s) => s.setWindowMode);
+  const setPaletteOpen = useZoreon((s) => s.setPaletteOpen);
 
   if (windowMode === "minimized") return null;
 
@@ -24,7 +24,6 @@ export function WindowFrame({ children }: { children: ReactNode }) {
       <div className="flex h-11 shrink-0 items-center gap-3 border-b border-border bg-titlebar px-3">
         <div className="flex items-center gap-1.5 pr-1">
           <Traffic color="bg-traffic-close" label="Close" onClick={() => setWindowMode("minimized")} />
-          <Traffic color="bg-traffic-min" label="Minimize" onClick={() => setWindowMode("minimized")} />
           <Traffic
             color="bg-traffic-max"
             label={maximized ? "Restore" : "Maximize"}
@@ -32,7 +31,7 @@ export function WindowFrame({ children }: { children: ReactNode }) {
           />
         </div>
         <p className="hidden min-w-0 flex-1 truncate text-center text-xs font-medium text-fg-muted sm:block">
-          Agora — Wave 3 cutover
+          Zoreon — Zyvor ops chat
         </p>
         <button
           type="button"

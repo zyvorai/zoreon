@@ -2,6 +2,8 @@ export type Presence = "active" | "away" | "dnd";
 
 export type ChannelKind = "channel" | "dm" | "war-room";
 
+export type MessagingBackend = "mattermost" | "sql";
+
 export type User = {
   id: string;
   name: string;
@@ -21,6 +23,7 @@ export type Channel = {
   mention?: boolean;
   members: string[];
   pinned?: boolean;
+  starred?: boolean;
   waveId?: string;
 };
 
@@ -31,16 +34,27 @@ export type Reaction = {
   mine: boolean;
 };
 
+export type MessageFile = {
+  id: string;
+  name: string;
+  mimeType: string;
+  size: number;
+  url?: string;
+};
+
 export type Message = {
   id: string;
   channelId: string;
   authorId: string;
   body: string;
   createdAt: number;
+  updatedAt?: number;
   parentId?: string;
   replyCount?: number;
   reactions: Reaction[];
   system?: boolean;
+  files?: MessageFile[];
+  pinnedAt?: number;
 };
 
 export type ChecklistItem = {

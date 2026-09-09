@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Check, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAgora } from "@/store/use-agora";
+import { useZoreon } from "@/store/use-zoreon";
 
 export function WarRoomRail() {
-  const channel = useAgora((s) => s.channels.find((c) => c.id === s.activeChannelId));
-  const wave = useAgora((s) => s.waves.find((w) => w.id === channel?.waveId));
-  const toggleCheck = useAgora((s) => s.toggleCheck);
+  const channel = useZoreon((s) => s.channels.find((c) => c.id === s.activeChannelId));
+  const wave = useZoreon((s) => s.waves.find((w) => w.id === channel?.waveId));
+  const toggleCheck = useZoreon((s) => s.toggleCheck);
   const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export function WarRoomRail() {
       <header className="flex h-12 items-center border-b border-border px-3">
         <p className="text-sm font-semibold">Cutover</p>
       </header>
-      <div className="agora-scroll min-h-0 flex-1 px-3 py-3">
+      <div className="zoreon-scroll min-h-0 flex-1 px-3 py-3">
         <p className="text-xs font-medium tracking-wide text-fg-subtle uppercase">Window remaining</p>
         <p className="mt-1 font-mono text-2xl font-medium tracking-tight tabular-nums text-fg">
           {now == null

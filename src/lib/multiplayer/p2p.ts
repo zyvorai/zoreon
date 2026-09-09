@@ -47,9 +47,13 @@ export interface P2PRoomOptions {
   name?: string;
   /** Defaults to VITE_STUN_URLS (comma-separated) or Google public STUN. */
   iceServers?: RTCIceServer[];
+  /** Optional local A/V stream (huddles). Tracks are added to each peer PC. */
+  localStream?: MediaStream;
   onPeersChanged?: (peers: PeerInfo[]) => void;
   /** Fires for both the unreliable "state" and reliable "reliable" channels. */
   onMessage?: (from: string, data: unknown, channel: "state" | "reliable") => void;
+  /** Remote media track (huddles). */
+  onRemoteTrack?: (from: string, track: MediaStreamTrack, streams: readonly MediaStream[]) => void;
   /** Fires once, on the first successful signaling poll (registration). */
   onConnected?: () => void;
 }
@@ -300,6 +304,14 @@ export class P2PRoom {
       }
     };
     pc.ondatachannel = (e) => this.attachChannel(slot, e.channel);
+    pc.ontrack = (e) => {
+      this.opts.onRemoteTrack?.(peerId, e.track, e.streams);
+    };
+    if (this.opts.localStream) {
+      for (const track of this.opts.localStream.getTracks()) {
+        pc.addTrack(track, this.opts.localStream);
+      }
+    }
 
     if (initiator) {
       // Creating the channels triggers negotiationneeded → the offer.

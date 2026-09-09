@@ -1,9 +1,10 @@
 import {
   buildSeed,
   currentUserId as seedCurrentUserId,
+  SEED_VERSION,
   users as seedUsers,
 } from "@/data/seed";
-import type { Channel, Message, Reaction, User, Wave } from "@/data/types";
+import type { Channel, Message, Reaction, User, Wave, MessagingBackend } from "@/data/types";
 import { getSql } from "@/lib/db";
 
 export type WorkspaceSnapshot = {
@@ -12,6 +13,13 @@ export type WorkspaceSnapshot = {
   messages: Message[];
   waves: Wave[];
   currentUserId: string;
+  backend: MessagingBackend;
+  /** Mattermost username when backend is mattermost */
+  tapeUsername?: string;
+  /** Session/tape email mismatch or other soft warning */
+  identityWarning?: string;
+  isAdmin?: boolean;
+  teamId?: string;
 };
 
 function nid(prefix: string) {
@@ -21,9 +29,9 @@ function nid(prefix: string) {
 async function isSeeded(): Promise<boolean> {
   const sql = await getSql();
   const rows = await sql<{ value: string }>`
-    select value from agora_meta where key = ${"seeded"}
+    select value from agora_meta where key = ${"seed_version"}
   `;
-  return rows[0]?.value === "1";
+  return rows[0]?.value === SEED_VERSION;
 }
 
 async function clearWorkspace() {
@@ -96,7 +104,7 @@ export async function seedWorkspace() {
     `;
 
     const channel = seedChannels.find((c) => c.id === m.channelId);
-    const memberPool = channel?.members.filter((id) => id !== "u-agora") ?? [seedCurrentUserId];
+    const memberPool = channel?.members.filter((id) => id !== "u-zoreon") ?? [seedCurrentUserId];
     for (const r of m.reactions) {
       for (let i = 0; i < r.count; i += 1) {
         let userId: string;
@@ -111,11 +119,67 @@ export async function seedWorkspace() {
     }
   }
 
-  await sql`insert into agora_meta (key, value) values (${"seeded"}, ${"1"})`;
+  await sql`insert into agora_meta (key, value) values (${"seed_version"}, ${SEED_VERSION})`;
 }
 
 export async function ensureWorkspaceSeeded() {
   if (!(await isSeeded())) await seedWorkspace();
+}
+
+/** Upsert an agora_profiles row for the signed-in Better Auth user. */
+export async function ensureProfileForSession(
+  session: {
+    id: string;
+    email: string | null;
+    name?: string | null;
+  },
+  opts?: { isAdmin?: boolean },
+): Promise<string> {
+  await ensureWorkspaceSeeded();
+  const sql = await getSql();
+  const email = session.email?.trim().toLowerCase() ?? "";
+  const handle = email.includes("@") ? email.split("@")[0]! : session.id.slice(0, 12);
+  const name =
+    session.name?.trim() ||
+    (handle === "ssahani" ? "S Sahani" : handle) ||
+    "User";
+  const initials = name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]!.toUpperCase())
+    .join("") || "U";
+  const role = opts?.isAdmin ? "Admin" : "Zyvor";
+
+  const existing = await sql<{ id: string }>`
+    select id from agora_profiles where id = ${session.id} limit 1
+  `;
+  if (existing.length === 0) {
+    await sql`
+      insert into agora_profiles (id, name, handle, role, presence, initials, tone)
+      values (${session.id}, ${name}, ${handle}, ${role}, ${"active"}, ${initials}, ${"accent"})
+    `;
+  } else {
+    await sql`
+      update agora_profiles
+      set name = ${name}, handle = ${handle}, initials = ${initials}, role = ${role}
+      where id = ${session.id}
+    `;
+  }
+
+  // Ensure the signed-in user is a member of every channel.
+  const channels = await sql<{ id: string; member_ids: string }>`select id, member_ids from agora_channels`;
+  for (const c of channels) {
+    const members = JSON.parse(c.member_ids) as string[];
+    if (!members.includes(session.id)) {
+      members.push(session.id);
+      await sql`
+        update agora_channels set member_ids = ${JSON.stringify(members)} where id = ${c.id}
+      `;
+    }
+  }
+
+  return session.id;
 }
 
 function aggregateReactions(
@@ -185,9 +249,11 @@ export async function loadWorkspace(currentUserId = seedCurrentUserId): Promise<
     author_id: string;
     body: string;
     created_at: number;
+    updated_at: number | null;
     parent_id: string | null;
     system: boolean;
     reply_count: number;
+    pinned_at: number | null;
   }>`select * from agora_messages order by created_at asc`;
 
   const reactionRows = await sql<{
@@ -205,9 +271,11 @@ export async function loadWorkspace(currentUserId = seedCurrentUserId): Promise<
     authorId: m.author_id,
     body: m.body,
     createdAt: Number(m.created_at),
+    updatedAt: m.updated_at ? Number(m.updated_at) : undefined,
     parentId: m.parent_id ?? undefined,
     replyCount: Number(m.reply_count) || undefined,
     system: m.system || undefined,
+    pinnedAt: m.pinned_at ? Number(m.pinned_at) : undefined,
     reactions: reactionsByMessage.get(m.id) ?? [],
   }));
 
@@ -248,7 +316,7 @@ export async function loadWorkspace(currentUserId = seedCurrentUserId): Promise<
       })),
   }));
 
-  return { users, channels, messages, waves, currentUserId };
+  return { users, channels, messages, waves, currentUserId, backend: "sql" };
 }
 
 export async function insertMessage(input: {
@@ -292,6 +360,18 @@ export async function insertMessage(input: {
       set reply_count = reply_count + 1
       where id = ${input.parentId}
     `;
+  }
+
+  try {
+    const { broadcastRealtime } = await import("./realtime.server");
+    broadcastRealtime({
+      type: "refresh",
+      reason: "post",
+      channelId: input.channelId,
+      at: Date.now(),
+    });
+  } catch {
+    /* */
   }
 
   return msg;
@@ -344,6 +424,102 @@ export async function markChannelRead(channelId: string): Promise<void> {
     set unread = 0, mention = false
     where id = ${channelId}
   `;
+}
+
+export async function updateMessageDb(input: {
+  messageId: string;
+  body: string;
+  authorId: string;
+}): Promise<Message> {
+  await ensureWorkspaceSeeded();
+  const sql = await getSql();
+  const text = input.body.trim();
+  if (!text) throw new Error("Empty message");
+  const now = Date.now();
+  const rows = await sql<{
+    id: string;
+    channel_id: string;
+    author_id: string;
+    body: string;
+    created_at: number;
+    updated_at: number | null;
+    parent_id: string | null;
+    system: boolean;
+    reply_count: number;
+    pinned_at: number | null;
+  }>`
+    update agora_messages
+    set body = ${text}, updated_at = ${now}
+    where id = ${input.messageId} and author_id = ${input.authorId}
+    returning *
+  `;
+  const m = rows[0];
+  if (!m) throw new Error("Message not found or not yours");
+  return {
+    id: m.id,
+    channelId: m.channel_id,
+    authorId: m.author_id,
+    body: m.body,
+    createdAt: Number(m.created_at),
+    updatedAt: Number(m.updated_at ?? now),
+    parentId: m.parent_id ?? undefined,
+    replyCount: Number(m.reply_count) || undefined,
+    system: m.system || undefined,
+    pinnedAt: m.pinned_at ? Number(m.pinned_at) : undefined,
+    reactions: [],
+  };
+}
+
+export async function deleteMessageDb(input: {
+  messageId: string;
+  authorId: string;
+}): Promise<void> {
+  await ensureWorkspaceSeeded();
+  const sql = await getSql();
+  await sql`delete from agora_reactions where message_id = ${input.messageId}`;
+  await sql`
+    delete from agora_messages
+    where id = ${input.messageId} and author_id = ${input.authorId}
+  `;
+}
+
+export async function setPresenceDb(input: {
+  userId: string;
+  presence: "active" | "away" | "dnd";
+}): Promise<void> {
+  await ensureWorkspaceSeeded();
+  const sql = await getSql();
+  await sql`
+    update agora_profiles set presence = ${input.presence} where id = ${input.userId}
+  `;
+}
+
+export async function updateChannelTopicDb(input: {
+  channelId: string;
+  topic: string;
+}): Promise<void> {
+  await ensureWorkspaceSeeded();
+  const sql = await getSql();
+  await sql`
+    update agora_channels set topic = ${input.topic} where id = ${input.channelId}
+  `;
+}
+
+export async function togglePinDb(input: {
+  messageId: string;
+  pin: boolean;
+}): Promise<void> {
+  await ensureWorkspaceSeeded();
+  const sql = await getSql();
+  if (input.pin) {
+    await sql`
+      update agora_messages set pinned_at = ${Date.now()} where id = ${input.messageId}
+    `;
+  } else {
+    await sql`
+      update agora_messages set pinned_at = null where id = ${input.messageId}
+    `;
+  }
 }
 
 export async function resetWorkspace(): Promise<WorkspaceSnapshot> {

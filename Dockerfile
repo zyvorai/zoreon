@@ -1,4 +1,4 @@
-# Zyvor Agora — self-hosted Node (podman / systemd lab)
+# Zoreon — self-hosted Node (podman / systemd lab)
 # Build: NITRO_PRESET=node-server so Nitro emits .output/server (not Vercel).
 
 FROM node:22-bookworm-slim AS build
@@ -12,7 +12,10 @@ COPY . .
 ENV NITRO_PRESET=node-server
 ENV NODE_ENV=production
 # Build without Neon — PGLite/migrations bootstrap at runtime when needed.
-RUN npm run build
+RUN npm run build \
+  && cp node_modules/@electric-sql/pglite/dist/pglite.data \
+        node_modules/@electric-sql/pglite/dist/pglite.wasm \
+        .output/server/_libs/
 
 FROM node:22-bookworm-slim AS runtime
 WORKDIR /app
@@ -29,6 +32,8 @@ COPY --from=build /app/migrations ./migrations
 COPY --from=build /app/scripts ./scripts
 COPY --from=build /app/.grok/app-env.json ./.grok/app-env.json
 
+RUN chmod +x /app/scripts/docker-entrypoint.sh
+
 EXPOSE 8080
 USER node
-CMD ["node", ".output/server/index.mjs"]
+ENTRYPOINT ["/app/scripts/docker-entrypoint.sh"]
