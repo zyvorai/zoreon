@@ -55,4 +55,4 @@ Service worker registers regardless; push subscriptions no-op without VAPID.
 | `ZOREON_SMTP_ENV` | Path to SMTP env file for `deploy-remote.sh` |
 | `MATTERMOST_TOKEN` | Fallback if remote `tls/mm.token` missing |
 | `BUILDER` | `podman` (default) or `docker` |
-| `--port` / `ZOREN_PORT` | Public HTTPS port via deploy CLI (default `30591`) |
+| `--port` | Public HTTPS port via deploy CLI (default `30591`) |
