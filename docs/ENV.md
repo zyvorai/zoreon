@@ -11,6 +11,16 @@ See also [DEPLOY.md](DEPLOY.md) for how the deploy script injects these.
 | `BETTER_AUTH_URL` | Public origin (e.g. `https://zoreon.example.com`) |
 | `HOST` / `PORT` | Bind address (container: all interfaces / `8080`) |
 
+## Bootstrap (Compose / greenfield)
+
+| Variable | Purpose |
+| --- | --- |
+| `ZOREON_BOOTSTRAP_ADMIN_EMAIL` | Inserted into `agora_workspace_admins` on migrate/start; register this email via `/join` |
+| `POSTGRES_PASSWORD` | Compose Postgres password (see `.env.example`) |
+| `ZOREON_PUBLISH_PORT` | Host port mapped to app `:8080` (default `8080`) |
+
+On migrate, when the bootstrap email is set, Zoreon also ensures at least one active invite token exists.
+
 ## Mattermost tape (optional)
 
 | Variable | Purpose |
@@ -31,7 +41,7 @@ Without both, Zoreon uses local SQL messaging. There is **no** baked-in Mattermo
 | `SMTP_PASS` | `SMTP_PASSWORD` | App password |
 | `SMTP_USE_TLS` | | `true` for STARTTLS on 587 |
 
-Deploy: set `ZOREON_SMTP_ENV` to an env file path, or place SMTP keys where the deploy script looks (see [DEPLOY.md](DEPLOY.md)). Only `SMTP_*` keys are imported.
+Deploy SMTP via Compose `.env` or `ZOREON_SMTP_ENV` for the advanced script ([DEPLOY.md](DEPLOY.md)). Only `SMTP_*` keys are imported from an env file.
 
 ## Web Push (optional)
 

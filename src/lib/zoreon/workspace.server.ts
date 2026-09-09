@@ -124,6 +124,8 @@ export async function seedWorkspace() {
 
 export async function ensureWorkspaceSeeded() {
   if (!(await isSeeded())) await seedWorkspace();
+  const { ensureBootstrapAdminFromEnv } = await import("./admins.server");
+  await ensureBootstrapAdminFromEnv();
 }
 
 /** Upsert an agora_profiles row for the signed-in Better Auth user. */

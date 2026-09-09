@@ -4,9 +4,11 @@ Public product documentation for **[Zoreon](https://github.com/zyvorai/zoreon)**
 
 | Doc | Audience |
 | --- | --- |
+| [CUSTOMER.md](CUSTOMER.md) | **Start here** — organizations: code, Compose deploy, bootstrap |
+| [TESTING.md](TESTING.md) | Developers / QA — unit, HTTP smoke, browser checklist |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Contributors — how the product is layered |
-| [DEPLOY.md](DEPLOY.md) | Operators — ship to a lab / self-host |
 | [ENV.md](ENV.md) | Operators — env vars and secrets |
-| [OPERATIONS.md](OPERATIONS.md) | Operators — smoke, logs, day-2 |
+| [DEPLOY.md](DEPLOY.md) | Advanced — podman/systemd single-host script |
+| [OPERATIONS.md](OPERATIONS.md) | Advanced — day-2 host ops |
 
-Start at the root [README](../README.md) for clone / run / feature overview. Self-host details live in [DEPLOY.md](DEPLOY.md); do not publish private hostnames or addresses in this tree.
+Root [README](../README.md) for clone / feature overview. Do not publish private hostnames or addresses in this tree.

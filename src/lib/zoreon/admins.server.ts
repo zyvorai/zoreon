@@ -41,3 +41,14 @@ export async function listWorkspaceAdmins(): Promise<string[]> {
   `;
   return rows.map((r) => r.email);
 }
+
+/**
+ * Insert ZOREON_BOOTSTRAP_ADMIN_EMAIL into workspace admins if set.
+ * Idempotent — safe on every workspace load / migrate.
+ */
+export async function ensureBootstrapAdminFromEnv(): Promise<string | null> {
+  const normalized = normalizeAdminEmail(process.env.ZOREON_BOOTSTRAP_ADMIN_EMAIL);
+  if (!normalized) return null;
+  await ensureWorkspaceAdmin(normalized);
+  return normalized;
+}

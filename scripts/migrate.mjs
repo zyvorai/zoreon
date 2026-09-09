@@ -13,6 +13,7 @@
  * the same files at startup instead (see src/lib/db.ts).
  */
 import { readdir, readFile } from "node:fs/promises";
+import { randomBytes } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import pg from "pg";
@@ -74,6 +75,29 @@ async function main() {
       count += 1;
     }
     console.log(count ? `[migrate] done — ${count} migration(s) applied.` : "[migrate] up to date.");
+
+    // Customer bootstrap: first admin + ensure an active invite exists.
+    const bootstrap = (process.env.ZOREON_BOOTSTRAP_ADMIN_EMAIL || "")
+      .trim()
+      .toLowerCase();
+    if (bootstrap) {
+      await client.query(
+        `insert into agora_workspace_admins (email) values ($1) on conflict (email) do nothing`,
+        [bootstrap],
+      );
+      console.log(`[migrate] bootstrap admin ensured: ${bootstrap}`);
+      const active = await client.query(
+        `select token from agora_invites where revoked_at is null order by created_at desc limit 1`,
+      );
+      if (!active.rows[0]) {
+        const token = randomBytes(18).toString("base64url");
+        await client.query(
+          `insert into agora_invites (token, created_by) values ($1, $2)`,
+          [token, "bootstrap"],
+        );
+        console.log(`[migrate] bootstrap invite created (token length ${token.length})`);
+      }
+    }
   } finally {
     client.release();
     await pool.end();

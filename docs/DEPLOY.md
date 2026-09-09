@@ -1,6 +1,9 @@
-# Remote deploy
+# Remote deploy (advanced)
 
-Ship **[Zoreon](https://github.com/zyvorai/zoreon)** to a host: SSH → rsync → **podman** image build → **systemd** units (app + HTTPS proxy).
+> **Most organizations should start with Docker Compose** — see [CUSTOMER.md](CUSTOMER.md).  
+> This page is the **advanced** path: SSH → rsync → **podman** image build → **systemd** (app + HTTPS proxy) on a single Linux host.
+
+Ship **[Zoreon](https://github.com/zyvorai/zoreon)** with the in-repo deploy script when you want that model.
 
 ## Prerequisites (remote host)
 
@@ -44,14 +47,14 @@ Full env reference: [ENV.md](ENV.md).
 
 ### SMTP (invite email)
 
+Prefer setting `SMTP_*` in Compose / `.env` ([CUSTOMER.md](CUSTOMER.md), [ENV.md](ENV.md)). For this script:
+
 ```bash
-# Point deploy at an SMTP env file (Zoho or other)
+# Point deploy at an SMTP env file (any provider)
 ZOREON_SMTP_ENV=/path/to/smtp.env ./scripts/deploy-remote.sh <host> <user>
 ```
 
-If unset, deploy looks for `~/tt/zyvor-web/contact-mailer.env` when that path exists on the machine running the script.
-
-Accepted keys (zyvor-web or Zoreon names):
+Accepted keys (`SMTP_USERNAME`/`SMTP_PASSWORD` aliases supported):
 
 | Env | Notes |
 | --- | --- |

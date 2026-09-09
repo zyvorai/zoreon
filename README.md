@@ -14,10 +14,12 @@ Better Auth owns login. Mattermost (when wired) stores channel history; Zoreon a
 
 | Doc | Contents |
 | --- | --- |
+| [docs/CUSTOMER.md](docs/CUSTOMER.md) | **Organizations** — code, Compose deploy, bootstrap, TLS |
+| [docs/TESTING.md](docs/TESTING.md) | Unit / HTTP smoke / browser acceptance |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Product model, data planes, realtime, huddles |
-| [docs/DEPLOY.md](docs/DEPLOY.md) | Self-host deploy (podman + systemd) |
 | [docs/ENV.md](docs/ENV.md) | Environment variables |
-| [docs/OPERATIONS.md](docs/OPERATIONS.md) | Day-2 ops, smoke checks, secrets layout |
+| [docs/DEPLOY.md](docs/DEPLOY.md) | Advanced — podman/systemd single-host script |
+| [docs/OPERATIONS.md](docs/OPERATIONS.md) | Advanced — day-2 host ops |
 
 ## Quick start
 
@@ -30,6 +32,8 @@ npm run dev
 
 Binds all interfaces on port `8080`. Open `/login` (also `/signin`).
 
+**Self-host (recommended for customers):** copy `.env.example` → `.env`, set secrets + `ZOREON_BOOTSTRAP_ADMIN_EMAIL`, then `docker compose up -d --build`. Full path: [docs/CUSTOMER.md](docs/CUSTOMER.md).
+
 ## Sign-in & invites
 
 | Path | What |
@@ -39,7 +43,7 @@ Binds all interfaces on port `8080`. Open `/login` (also `/signin`).
 | **Zoreon → Invite people** | Multi-use link, SMTP send, or mailto |
 | `/api/auth/*` | Better Auth |
 
-Admins generate invites from the menu. SMTP Send uses Zoho (or any SMTP) when configured — see [docs/DEPLOY.md](docs/DEPLOY.md) and [docs/ENV.md](docs/ENV.md).
+Admins generate invites from the menu. SMTP Send works when `SMTP_*` is set — see [docs/CUSTOMER.md](docs/CUSTOMER.md) and [docs/ENV.md](docs/ENV.md).
 
 ## Product surface
 
@@ -54,14 +58,18 @@ Admins generate invites from the menu. SMTP Send uses Zoho (or any SMTP) when co
 | Huddles | Channel A/V via WebRTC + `/api/rtc` |
 | PWA | `public/sw.js`, manifest, offline outbox; Web Push when `VAPID_*` set |
 
-## Remote deploy
+## Deploy
+
+| Path | Doc |
+| --- | --- |
+| Docker Compose (greenfield) | [docs/CUSTOMER.md](docs/CUSTOMER.md) |
+| Advanced podman/systemd | [docs/DEPLOY.md](docs/DEPLOY.md) |
 
 ```bash
-./scripts/deploy-remote.sh <host> <user> --port 30591
-make deploy-remote H=<host> U=<user> PORT=30591
+cp .env.example .env   # edit secrets
+docker compose up -d --build
+BASE_URL=http://localhost:8080 ./scripts/customer-smoke.sh
 ```
-
-Full guide: [docs/DEPLOY.md](docs/DEPLOY.md). SMTP can be loaded from an env file (`ZOREON_SMTP_ENV`); see [docs/ENV.md](docs/ENV.md).
 
 ## Layout
 
@@ -74,7 +82,9 @@ Full guide: [docs/DEPLOY.md](docs/DEPLOY.md). SMTP can be loaded from an env fil
 | `src/routes/api/zoreon/events.ts` | SSE fan-out |
 | `src/routes/api/rtc.ts` | Huddle signaling |
 | `migrations/` | Auth + messaging + invites + tokens + prefs + push |
-| `scripts/deploy-remote.sh` | Remote deploy (podman + systemd + TLS proxy) |
+| `scripts/deploy-remote.sh` | Advanced remote deploy (podman + systemd) |
+| `docker-compose.yml` | Greenfield self-host (Postgres + app) |
+| `scripts/customer-smoke.sh` | HTTP smoke against `BASE_URL` |
 | `public/sw.js` | Service worker |
 
 ## License
