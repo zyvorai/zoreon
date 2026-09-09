@@ -10,6 +10,11 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  DATABASE_URL: postgres://zoreon:zoreon@127.0.0.1:5432/zoreon
+  BETTER_AUTH_SECRET: ci-better-auth-secret-not-for-prod
+  BETTER_AUTH_URL: http://127.0.0.1:8081
+
 jobs:
   unit:
     name: Unit / typecheck / build
@@ -29,6 +34,20 @@ jobs:
     name: customer-smoke.sh (preview)
     runs-on: ubuntu-latest
     needs: unit
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: zoreon
+          POSTGRES_PASSWORD: zoreon
+          POSTGRES_DB: zoreon
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U zoreon -d zoreon"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -37,19 +56,45 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      - run: node scripts/migrate.mjs
       - name: Start preview
         run: |
-          npm run preview -- --host 127.0.0.1 --port 8081 &
+          npm run preview -- --host 127.0.0.1 --port 8081 > /tmp/zoreon-preview.log 2>&1 &
+          echo $! > /tmp/zoreon-preview.pid
           for i in $(seq 1 60); do
-            curl -fsS http://127.0.0.1:8081/login && break
+            if curl -fsS http://127.0.0.1:8081/login >/dev/null; then
+              exit 0
+            fi
+            if ! kill -0 "$(cat /tmp/zoreon-preview.pid)" 2>/dev/null; then
+              echo "preview exited early:" >&2
+              cat /tmp/zoreon-preview.log >&2 || true
+              exit 1
+            fi
             sleep 2
           done
+          echo "preview never became ready:" >&2
+          cat /tmp/zoreon-preview.log >&2 || true
+          exit 1
       - run: BASE_URL=http://127.0.0.1:8081 ./scripts/customer-smoke.sh
 
   e2e:
     name: Playwright E2E
     runs-on: ubuntu-latest
     needs: unit
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: zoreon
+          POSTGRES_PASSWORD: zoreon
+          POSTGRES_DB: zoreon
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U zoreon -d zoreon"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -59,6 +104,7 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run build
+      - run: node scripts/migrate.mjs
       - name: Run Playwright
         run: npx playwright test
         env:
