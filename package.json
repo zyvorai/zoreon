@@ -1,6 +1,17 @@
 {
   "name": "zoreon",
+  "version": "0.1.0",
   "private": true,
+  "description": "Zyvor ops chat — Mattermost is the tape; Zoreon is the product.",
+  "homepage": "https://github.com/zyvorai/zoreon",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zyvorai/zoreon.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zyvorai/zoreon/issues"
+  },
+  "license": "MIT",
   "sideEffects": false,
   "type": "module",
   "overrides": {

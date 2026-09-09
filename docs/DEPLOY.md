@@ -1,6 +1,6 @@
 # Remote deploy
 
-Lab pattern: SSH → rsync → **podman** image build → **systemd** units (app + HTTPS proxy).
+Ship **[Zoreon](https://github.com/zyvorai/zoreon)** to a lab host: SSH → rsync → **podman** image build → **systemd** units (app + HTTPS proxy).
 
 ## Prerequisites (remote host)
 
@@ -11,6 +11,9 @@ Lab pattern: SSH → rsync → **podman** image build → **systemd** units (app
 ## Deploy
 
 ```bash
+git clone https://github.com/zyvorai/zoreon.git
+cd zoreon
+
 ./scripts/deploy-remote.sh <host> [user] [--port 30591]
 make deploy-remote H=<host> U=sus PORT=30591
 
@@ -36,6 +39,8 @@ MATTERMOST_URL=http://zoreon.example.com:31722 ./scripts/deploy-remote.sh zoreon
 | `~/.deployments/zoreon/tls/mm.token` | Mattermost admin PAT (tape) |
 | `~/.deployments/zoreon/tls/smtp.env` | SMTP (written by deploy; mode 600) |
 | `~/.deployments/zoreon/tls/cert.pem` + `key.pem` | Self-signed HTTPS for the proxy |
+
+Full env reference: [ENV.md](ENV.md).
 
 ### SMTP (invite email)
 
@@ -87,6 +92,8 @@ ssh <user>@<host> 'sudo systemctl is-active zoreon zoreon-https && sudo podman p
 ssh <user>@<host> 'sudo podman exec $(sudo podman ps -q -f name=zoreon) sh -c "echo SMTP_HOST=\$SMTP_HOST"'
 ```
 
+More day-2 checks: [OPERATIONS.md](OPERATIONS.md).
+
 ## Current lab
 
 | Service | URL |
@@ -94,4 +101,4 @@ ssh <user>@<host> 'sudo podman exec $(sudo podman ps -q -f name=zoreon) sh -c "e
 | Zoreon | https://zoreon.example.com:30591/ |
 | Mattermost | http://zoreon.example.com:31722/ (`/opt/mattermost-docker/`) |
 
-Login (lab): use your Zyvor account or an invite from **Zoreon → Invite people**.
+Login: Zyvor account or an invite from **Zoreon → Invite people**.
