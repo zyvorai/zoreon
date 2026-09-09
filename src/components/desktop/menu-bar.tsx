@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { UserButton } from "@/lib/auth/gates";
 import { useAgora } from "@/store/use-agora";
 
 const menus = ["Agora", "File", "Edit", "View", "Go", "Window"] as const;
@@ -78,14 +79,19 @@ export function MenuBar() {
                     }}
                   />
                 ) : (
-                  <p className="px-2 py-1.5 text-fg-subtle">Native macOS chrome · demo</p>
+                  <p className="px-2 py-1.5 text-fg-subtle">Desktop chrome · demo</p>
                 )}
               </div>
             ) : null}
           </div>
         ))}
       </nav>
-      <time className="tabular-nums text-fg-muted">{clock}</time>
+      <div className="flex items-center gap-3">
+        <div className="hidden scale-90 sm:block [&_span]:text-xs [&_button]:text-xs">
+          <UserButton />
+        </div>
+        <time className="tabular-nums text-fg-muted">{clock}</time>
+      </div>
     </header>
   );
 }

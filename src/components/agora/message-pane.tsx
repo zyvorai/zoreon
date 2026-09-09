@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Hash, Headphones, MessageSquare, PhoneOff, Radio } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Avatar } from "@/components/macos/avatar";
+import { Avatar } from "@/components/desktop/avatar";
 import type { Message, User } from "@/data/types";
 import { useAgora } from "@/store/use-agora";
 

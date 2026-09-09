@@ -1,5 +1,5 @@
 import { X } from "lucide-react";
-import { Avatar } from "@/components/macos/avatar";
+import { Avatar } from "@/components/desktop/avatar";
 import { Composer, TimeLabel } from "@/components/agora/message-pane";
 import { useAgora } from "@/store/use-agora";
 

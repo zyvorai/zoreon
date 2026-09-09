@@ -12,7 +12,7 @@ export const Route = createRootRoute({
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: APP_NAME },
       { name: "theme-color", content: "#1c1c1e" },
-      { name: "description", content: "macOS-class ops chat for infrastructure programs." },
+      { name: "description", content: "Ops chat for infrastructure programs." },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },

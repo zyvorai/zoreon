@@ -40,7 +40,7 @@ html {
 
 body {
   min-height: 100dvh;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  font-family: system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
   font-size: var(--text-body);
   font-weight: var(--weight-regular);
   font-optical-sizing: auto;
@@ -165,7 +165,7 @@ h1 {
   align-self: stretch;
   padding: 0;
   color: var(--title);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  font-family: system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
   font-size: var(--text-title);
   font-weight: var(--weight-semibold);
   font-optical-sizing: auto;

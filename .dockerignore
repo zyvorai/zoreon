@@ -1,0 +1,14 @@
+# .dockerignore for Agora image builds
+node_modules
+.vercel
+.tanstack
+.output
+.nitro
+.git
+.grok/preview.log
+.grok/preview.pid
+screenshots
+artifacts
+*.log
+.DS_Store
+.deploy-remote-last

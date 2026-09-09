@@ -7,6 +7,9 @@ node_modules/
 .env.*
 !.env.example
 
+# Deploy state (host/user/port — local only)
+.deploy-remote-last
+
 # Build / cache
 .vercel/
 .tanstack/

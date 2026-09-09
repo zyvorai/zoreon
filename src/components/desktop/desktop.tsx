@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import { MenuBar } from "@/components/macos/menu-bar";
-import { Dock } from "@/components/macos/dock";
-import { WindowFrame } from "@/components/macos/window-frame";
-import { CommandPalette } from "@/components/macos/command-palette";
+import { MenuBar } from "@/components/desktop/menu-bar";
+import { Dock } from "@/components/desktop/dock";
+import { WindowFrame } from "@/components/desktop/window-frame";
+import { CommandPalette } from "@/components/desktop/command-palette";
 import { Workspace } from "@/components/agora/workspace";
 import { useAgora } from "@/store/use-agora";
 
@@ -49,7 +49,7 @@ export function Desktop() {
         </WindowFrame>
         {windowMode === "minimized" ? (
           <p className="pointer-events-none absolute bottom-28 hidden text-sm text-fg-muted md:block">
-            Agora is in the Dock
+            Agora is minimized
           </p>
         ) : null}
       </div>

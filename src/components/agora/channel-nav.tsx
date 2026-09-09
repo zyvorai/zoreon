@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Hash, Inbox, Radio, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Avatar } from "@/components/macos/avatar";
+import { Avatar } from "@/components/desktop/avatar";
 import { useAgora } from "@/store/use-agora";
 
 export function ChannelNav() {
