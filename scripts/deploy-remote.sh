@@ -39,11 +39,15 @@ source "$SCRIPT_DIR/lib/deploy-remote-lib.sh"
 SERVICE_NAME="${SERVICE_NAME:-zoreon}"
 PROXY_SERVICE_NAME="${PROXY_SERVICE_NAME:-zoreon-https}"
 CONTAINER_NAME="${CONTAINER_NAME:-zoreon}"
-# Postgres keeps legacy agora-* names so existing lab volumes/auth DB stay intact.
-DB_CONTAINER_NAME="${DB_CONTAINER_NAME:-agora-db}"
+# Postgres keeps zoreon-* names; agora-* is migrated on deploy when still present.
+DB_CONTAINER_NAME="${DB_CONTAINER_NAME:-zoreon-db}"
 IMAGE_NAME="${IMAGE_NAME:-zoreon:latest}"
 DB_IMAGE="${DB_IMAGE:-docker.io/library/postgres:16-alpine}"
-NETWORK_NAME="${NETWORK_NAME:-agora-net}"
+NETWORK_NAME="${NETWORK_NAME:-zoreon-net}"
+PG_VOLUME_NAME="${PG_VOLUME_NAME:-zoreon-pgdata}"
+LEGACY_DB_CONTAINER_NAME="${LEGACY_DB_CONTAINER_NAME:-agora-db}"
+LEGACY_NETWORK_NAME="${LEGACY_NETWORK_NAME:-agora-net}"
+LEGACY_PG_VOLUME_NAME="${LEGACY_PG_VOLUME_NAME:-agora-pgdata}"
 REMOTE_DIR_NAME="${REMOTE_DIR_NAME:-.deployments/zoreon}"
 LEGACY_REMOTE_DIR_NAME=".deployments/agora"
 LEGACY_SERVICE_NAME="agora"
@@ -204,7 +208,7 @@ if $UNINSTALL_MODE; then
     $SUDO ${BUILDER} rmi ${IMAGE_NAME} 2>/dev/null || true
     rm -rf '${REMOTE_DIR}'
   "
-  zoreon_info "Zoreon removed from ${HOST} (Postgres volume agora-pgdata kept if present)"
+  zoreon_info "Zoreon removed from ${HOST} (Postgres volume ${PG_VOLUME_NAME} / legacy ${LEGACY_PG_VOLUME_NAME} kept if present)"
   exit 0
 fi
 
@@ -292,37 +296,71 @@ _ssh "
 AUTH_SECRET="$(_ssh "tr -d '\n' < '${REMOTE_DIR}/tls/auth.secret'")"
 DB_PASS="$(_ssh "tr -d '\n' < '${REMOTE_DIR}/tls/db.secret'")"
 # URL-encode is unnecessary: secret is hex only.
-DATABASE_URL="postgres://agora:${DB_PASS}@${DB_CONTAINER_NAME}:5432/agora"
+# Detect whether we still run on a legacy agora volume (user/db = agora).
+PG_META="$(_ssh "
+  set -euo pipefail
+  VOL='${PG_VOLUME_NAME}'
+  USERNAME=zoreon
+  DBNAME=zoreon
+  if $SUDO ${BUILDER} volume inspect '${LEGACY_PG_VOLUME_NAME}' >/dev/null 2>&1; then
+    if ! $SUDO ${BUILDER} volume inspect '${PG_VOLUME_NAME}' >/dev/null 2>&1; then
+      VOL='${LEGACY_PG_VOLUME_NAME}'
+      USERNAME=agora
+      DBNAME=agora
+    fi
+  fi
+  # Rename legacy DB container if needed
+  if $SUDO ${BUILDER} inspect '${LEGACY_DB_CONTAINER_NAME}' >/dev/null 2>&1 \
+     && ! $SUDO ${BUILDER} inspect '${DB_CONTAINER_NAME}' >/dev/null 2>&1; then
+    $SUDO ${BUILDER} rename '${LEGACY_DB_CONTAINER_NAME}' '${DB_CONTAINER_NAME}' || true
+  fi
+  # Prefer zoreon-net; create if missing
+  $SUDO ${BUILDER} network inspect '${NETWORK_NAME}' >/dev/null 2>&1 \
+    || $SUDO ${BUILDER} network create '${NETWORK_NAME}'
+  printf '%s %s %s' \"\$VOL\" \"\$USERNAME\" \"\$DBNAME\"
+")"
+PG_VOL="$(printf '%s' "$PG_META" | awk '{print $1}')"
+PG_USER="$(printf '%s' "$PG_META" | awk '{print $2}')"
+PG_DB="$(printf '%s' "$PG_META" | awk '{print $3}')"
+DATABASE_URL="postgres://${PG_USER}:${DB_PASS}@${DB_CONTAINER_NAME}:5432/${PG_DB}"
+if [ "$PG_VOL" = "$LEGACY_PG_VOLUME_NAME" ]; then
+  zoreon_warn "Using legacy volume ${LEGACY_PG_VOLUME_NAME} (user/db ${PG_USER}). New installs use ${PG_VOLUME_NAME}."
+fi
 MM_TOKEN="$(_ssh "if [ -f '${REMOTE_DIR}/tls/mm.token' ]; then tr -d '\n' < '${REMOTE_DIR}/tls/mm.token'; fi")"
 if [ -z "$MM_TOKEN" ] && [ -n "${MATTERMOST_TOKEN:-}" ]; then
   MM_TOKEN="$MATTERMOST_TOKEN"
 fi
 zoreon_info "TLS + secrets ready (${PUBLIC_ORIGIN})"
 
-zoreon_step "Postgres ${DB_CONTAINER_NAME} on ${NETWORK_NAME}"
+zoreon_step "Postgres ${DB_CONTAINER_NAME} on ${NETWORK_NAME} (volume ${PG_VOL})"
 _ssh "
   set -euo pipefail
   $SUDO ${BUILDER} network inspect ${NETWORK_NAME} >/dev/null 2>&1 \
     || $SUDO ${BUILDER} network create ${NETWORK_NAME}
+  if $SUDO ${BUILDER} inspect ${LEGACY_DB_CONTAINER_NAME} >/dev/null 2>&1 \
+     && ! $SUDO ${BUILDER} inspect ${DB_CONTAINER_NAME} >/dev/null 2>&1; then
+    $SUDO ${BUILDER} rename ${LEGACY_DB_CONTAINER_NAME} ${DB_CONTAINER_NAME} || true
+  fi
   if ! $SUDO ${BUILDER} inspect ${DB_CONTAINER_NAME} >/dev/null 2>&1; then
     $SUDO ${BUILDER} run -d --name ${DB_CONTAINER_NAME} --network ${NETWORK_NAME} \
       --restart=always \
-      -e POSTGRES_USER=agora \
+      -e POSTGRES_USER=${PG_USER} \
       -e POSTGRES_PASSWORD='${DB_PASS}' \
-      -e POSTGRES_DB=agora \
-      -v agora-pgdata:/var/lib/postgresql/data \
+      -e POSTGRES_DB=${PG_DB} \
+      -v ${PG_VOL}:/var/lib/postgresql/data \
       ${DB_IMAGE}
   else
     $SUDO ${BUILDER} start ${DB_CONTAINER_NAME} >/dev/null 2>&1 || true
+    # Ensure DB is on the zoreon network
+    $SUDO ${BUILDER} network connect ${NETWORK_NAME} ${DB_CONTAINER_NAME} 2>/dev/null || true
   fi
-  # Wait until ready
   for _ in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
-    if $SUDO ${BUILDER} exec ${DB_CONTAINER_NAME} pg_isready -U agora -d agora >/dev/null 2>&1; then
+    if $SUDO ${BUILDER} exec ${DB_CONTAINER_NAME} pg_isready -U ${PG_USER} -d ${PG_DB} >/dev/null 2>&1; then
       exit 0
     fi
     sleep 1
   done
-  echo 'agora-db not ready' >&2
+  echo '${DB_CONTAINER_NAME} not ready' >&2
   exit 1
 "
 zoreon_info "${DB_CONTAINER_NAME} ready"

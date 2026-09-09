@@ -31,3 +31,9 @@ Thumbs.db
 *.sqlite
 *.sqlite3
 pglite-debug.log
+
+# Playwright
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/

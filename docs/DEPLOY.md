@@ -31,7 +31,7 @@ MATTERMOST_URL=https://mattermost.example.com ./scripts/deploy-remote.sh <host> 
 | Units | `zoreon.service` + `zoreon-https.service` |
 | Public port | `30591` (HTTPS proxy, default) → loopback upstream → container `8080` |
 | State file | `.deploy-remote-last` (local, gitignored) |
-| Postgres | legacy `agora-db` / `agora-pgdata` on `agora-net` |
+| Postgres | `zoreon-db` / `zoreon-pgdata` / `zoreon-net` (legacy `agora-*` auto-migrated when present) |
 
 ## Secrets on the host
 

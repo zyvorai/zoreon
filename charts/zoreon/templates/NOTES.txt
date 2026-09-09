@@ -1,0 +1,17 @@
+Zoreon {{ .Chart.AppVersion }} installed as release "{{ .Release.Name }}".
+
+1. Wait for the app:
+   kubectl -n {{ .Release.Namespace }} rollout status deploy/{{ include "zoreon.fullname" . }}
+
+2. Port-forward (if Ingress is disabled):
+   kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "zoreon.fullname" . }} 8080:{{ .Values.service.port }}
+
+3. Smoke:
+   BASE_URL=http://127.0.0.1:8080 ./scripts/customer-smoke.sh
+
+Docs: docs/HELM.md · docs/CUSTOMER.md · docs/TESTING.md
+{{- if .Values.postgresql.enabled }}
+
+In-cluster Postgres is enabled (dev/small installs). For production, prefer an external managed database
+(--set postgresql.enabled=false --set secret.DATABASE_URL=…).
+{{- end }}

@@ -1,0 +1,82 @@
+# Default values for Zoreon Helm chart.
+# Docs: docs/CUSTOMER.md · docs/HELM.md
+
+replicaCount: 1
+
+image:
+  repository: zoreon
+  tag: latest
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: zoreon.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  # - secretName: zoreon-tls
+  #   hosts:
+  #     - zoreon.example.com
+
+resources: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Application env (non-secret). Secrets go in existingSecret or secret block.
+env:
+  HOST: "0.0.0.0"
+  PORT: "8080"
+  # BETTER_AUTH_URL should match the public URL (Ingress host)
+  BETTER_AUTH_URL: "https://zoreon.example.com"
+  ZOREON_BOOTSTRAP_ADMIN_EMAIL: ""
+  MATTERMOST_URL: ""
+  SMTP_HOST: ""
+  SMTP_PORT: "587"
+  SMTP_FROM: ""
+  SMTP_USE_TLS: "true"
+
+# Create a Secret from these values (dev only). Prefer existingSecret in prod.
+secret:
+  create: true
+  BETTER_AUTH_SECRET: "change-me"
+  MATTERMOST_TOKEN: ""
+  SMTP_USER: ""
+  SMTP_PASS: ""
+  VAPID_PUBLIC_KEY: ""
+  VAPID_PRIVATE_KEY: ""
+  # DATABASE_URL required unless postgresql.enabled
+  DATABASE_URL: ""
+
+# Use a pre-created Secret with keys matching secret.* above + DATABASE_URL
+existingSecret: ""
+
+# Optional in-cluster Postgres (Bitnami-style minimal StatefulSet — not for HA prod)
+postgresql:
+  enabled: true
+  auth:
+    username: zoreon
+    password: change-me
+    database: zoreon
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: ""
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}

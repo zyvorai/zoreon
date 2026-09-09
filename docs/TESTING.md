@@ -39,6 +39,16 @@ The script checks:
 
 Exit code non-zero on failure — safe to call from CI.
 
+### Playwright E2E
+
+```bash
+npm run build
+npx playwright install chromium   # once
+npm run test:e2e                  # starts vite preview on :8081
+```
+
+GitHub Actions runs unit + `customer-smoke.sh` + Playwright on every push/PR to `main` (see `.github/workflows/ci.yml`).
+
 ### Copy-paste curl block
 
 ```bash

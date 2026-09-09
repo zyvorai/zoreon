@@ -15,7 +15,8 @@ Better Auth owns login. Mattermost (when wired) stores channel history; Zoreon a
 | Doc | Contents |
 | --- | --- |
 | [docs/CUSTOMER.md](docs/CUSTOMER.md) | **Organizations** — code, Compose deploy, bootstrap, TLS |
-| [docs/TESTING.md](docs/TESTING.md) | Unit / HTTP smoke / browser acceptance |
+| [docs/HELM.md](docs/HELM.md) | Kubernetes Helm chart |
+| [docs/TESTING.md](docs/TESTING.md) | Unit / HTTP smoke / Playwright / browser acceptance |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Product model, data planes, realtime, huddles |
 | [docs/ENV.md](docs/ENV.md) | Environment variables |
 | [docs/DEPLOY.md](docs/DEPLOY.md) | Advanced — podman/systemd single-host script |
@@ -63,6 +64,7 @@ Admins generate invites from the menu. SMTP Send works when `SMTP_*` is set — 
 | Path | Doc |
 | --- | --- |
 | Docker Compose (greenfield) | [docs/CUSTOMER.md](docs/CUSTOMER.md) |
+| Kubernetes Helm | [docs/HELM.md](docs/HELM.md) |
 | Advanced podman/systemd | [docs/DEPLOY.md](docs/DEPLOY.md) |
 
 ```bash

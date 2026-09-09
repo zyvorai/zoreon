@@ -19,7 +19,7 @@ Zoreon is Zyvor’s ops-chat product. **Mattermost is the tape** (durable channe
               │
               ▼
 ┌───────────────────────────┐
-│  Postgres (agora-db lab)  │
+│  Postgres (zoreon-db)     │
 │  auth · invites · extras  │
 │  LISTEN/NOTIFY realtime   │
 └───────────────────────────┘
@@ -60,4 +60,4 @@ Cutover waves, bookmarks, reminders, stars, overlays, and admin audit stay on Zo
 
 ## Naming note
 
-GitHub repo and product name are **zoreon**. Lab Postgres objects (`agora-db`, `agora_*` tables, `agora-pgdata`) keep the pre-rename names so existing volumes stay intact — do not rename them casually on a live lab.
+GitHub repo and product name are **zoreon**. SQL tables keep the historical `agora_*` prefix. Lab deploy defaults to `zoreon-db` / `zoreon-net` / `zoreon-pgdata`; legacy `agora-*` containers/volumes are renamed or reused automatically (see [DEPLOY.md](DEPLOY.md)).

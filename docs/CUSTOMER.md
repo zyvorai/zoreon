@@ -72,7 +72,7 @@ This starts:
 
 App listens on host port **8080** by default (`ZOREON_PUBLISH_PORT` to override).
 
-> Lab / Zyvor single-host installs that already use `agora-db` volumes are unchanged. Compose is for **new** customer deployments only.
+> Lab / Zyvor single-host installs use `scripts/deploy-remote.sh` (auto-migrates legacy `agora-*` volumes). Compose is for **new** customer deployments only.
 
 ### First admin and invites
 

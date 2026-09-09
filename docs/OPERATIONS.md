@@ -14,7 +14,7 @@ Under `~/.deployments/zoreon/tls/` on the app host:
 | `smtp.env` | SMTP (written by deploy; mode 600) |
 | `cert.pem` / `key.pem` | HTTPS proxy |
 
-Postgres container/volume names remain `agora-db` / `agora-pgdata` / network `agora-net` (pre-rename). Do not rename on a live host without a migration plan.
+Postgres defaults to **`zoreon-db` / `zoreon-net` / `zoreon-pgdata`**. If a legacy `agora-db` container or `agora-pgdata` volume is present, deploy renames/reuses them and keeps the in-volume `agora` DB user so existing data stays intact. Greenfield installs use the `zoreon` DB user.
 
 ## Units
 
