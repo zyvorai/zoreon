@@ -1,63 +1,81 @@
 # Architecture
 
-Zoreon is Zyvor’s ops-chat product. **Mattermost is the tape** (durable channel history when configured). **Zoreon is the product** (login, invites, search, prefs, admin, PWA, huddles, cutover waves).
+Zoreon is Zyvor’s ops-chat product for infrastructure cutovers.
+
+**Mattermost is the tape** (durable channel history when configured).  
+**Zoreon is the product** (login, invites, search, prefs, admin, PWA, huddles, cutover waves).
 
 ## Planes
 
+```mermaid
+flowchart TB
+  browser["Browser · desktop shell · PWA SW"]
+  zoreon["Zoreon · TanStack Start"]
+  mm["Mattermost · optional tape"]
+  pg["Postgres"]
+
+  browser -->|"Better Auth · SSE · WebRTC"| zoreon
+  zoreon -->|"channels / posts / reactions"| mm
+  zoreon -->|"auth · invites · extras · NOTIFY"| pg
 ```
-┌─────────────────────────────────────────────────────────┐
-│  Browser (desktop shell + PWA SW)                       │
-│  Better Auth session · SSE · WebRTC huddles             │
-└───────────────┬───────────────────────────┬─────────────┘
-                │                           │
-                ▼                           ▼
-┌───────────────────────────┐   ┌─────────────────────────┐
-│  Zoreon (TanStack Start)  │   │  Mattermost (optional)  │
-│  /api/auth · /api/zoreon  │   │  channels / posts / rxn │
-│  /api/rtc · server fns    │   │  admin PAT + user tokens│
-└─────────────┬─────────────┘   └─────────────────────────┘
-              │
-              ▼
-┌───────────────────────────┐
-│  Postgres (zoreon-db)     │
-│  auth · invites · extras  │
-│  LISTEN/NOTIFY realtime   │
-└───────────────────────────┘
-```
+
+| Layer | Responsibility |
+| --- | --- |
+| Browser | Session cookie, SSE client, huddle media |
+| Zoreon | `/api/auth`, `/api/zoreon/*`, `/api/rtc`, server functions |
+| Mattermost | Optional REST tape when `MATTERMOST_URL` + `MATTERMOST_TOKEN` are set |
+| Postgres | Better Auth tables, invites, stars/pins/bookmarks, prefs, push, audit |
 
 ## Auth
 
 - **Better Auth** at `/api/auth/*` — email/password + Google / X.
 - New accounts require a valid **invite** (`/join?token=…`).
-- Workspace admins live in `agora_workspace_admins` (table prefix is historical).
+- Workspace admins: `agora_workspace_admins` (historical table prefix).
+- Bootstrap: `ZOREON_BOOTSTRAP_ADMIN_EMAIL` seeds the first admin on migrate ([CUSTOMER.md](CUSTOMER.md)).
 
 ## Messaging
 
 | Mode | Behavior |
 | --- | --- |
-| Mattermost wired (`MATTERMOST_URL` + admin `MATTERMOST_TOKEN`) | Channels/messages/send/reactions via MM. Per-user MM access tokens stored encrypted (`agora_mm_tokens`) so posts attribute to the signed-in user. |
-| No MM token | Local SQL seed / `agora_messages` path. |
+| Mattermost wired | Channels/messages/send/reactions via MM. Per-user access tokens in `agora_mm_tokens` (encrypted) so posts attribute to the signed-in user. |
+| No MM token | Local SQL path (`agora_messages` seed). |
 
-Cutover waves, bookmarks, reminders, stars, overlays, and admin audit stay on Zoreon Postgres either way.
+Cutover waves, bookmarks, reminders, stars, overlays, and admin audit always live on Zoreon Postgres.
 
 ## Realtime
 
 - Clients open SSE to `/api/zoreon/events`.
-- In-process hub plus Postgres `NOTIFY zoreon_realtime` so multiple app replicas fan out.
+- In-process hub **plus** Postgres `NOTIFY zoreon_realtime` so multiple app replicas fan out.
 
 ## Huddles
 
 - UI: `HuddleBar` in the channel header.
-- Signaling: `/api/rtc` (WebRTC peer discovery / SDP relay).
-- Media: browser `getUserMedia` + peer connections (`P2PRoom`).
+- Signaling: `/api/rtc` (peer discovery / SDP relay).
+- Media: `getUserMedia` + peer connections (`P2PRoom`).
 
 ## PWA / push
 
-- Service worker: `public/sw.js` (registered from the desktop shell).
+- Service worker: `public/sw.js`.
 - Manifest: `/__grok/manifest.webmanifest`.
-- Offline draft outbox in client store.
+- Offline draft outbox in the client store.
 - Web Push optional via `VAPID_*` + `agora_push_subscriptions`.
 
-## Naming note
+## Packaging
 
-GitHub repo and product name are **zoreon**. SQL tables keep the historical `agora_*` prefix. Lab deploy defaults to `zoreon-db` / `zoreon-net` / `zoreon-pgdata`; legacy `agora-*` containers/volumes are renamed or reused automatically (see [DEPLOY.md](DEPLOY.md)).
+| Artifact | Role |
+| --- | --- |
+| `docker-compose.yml` | Greenfield Postgres + app |
+| `charts/zoreon` | Helm Deployment, Service, Ingress, optional Postgres |
+| `scripts/deploy-remote.sh` | Lab/advanced: podman + systemd; `zoreon-*` volumes (legacy `agora-*` migrated) |
+
+## Naming
+
+| Name | Scope |
+| --- | --- |
+| **zoreon** | Product, GitHub repo, Compose/Helm/service defaults |
+| `agora_*` | Historical SQL table prefix — do not rename casually on a live DB |
+| `agora-*` volumes | Legacy lab names; deploy script renames/reuses automatically |
+
+## Related
+
+- [CUSTOMER.md](CUSTOMER.md) · [HELM.md](HELM.md) · [ENV.md](ENV.md) · [TESTING.md](TESTING.md)

@@ -1,12 +1,12 @@
 # Helm — Kubernetes install
 
-Chart: [`charts/zoreon`](../charts/zoreon). Prefer Compose for a single VM ([CUSTOMER.md](CUSTOMER.md)); use Helm when you already run Kubernetes.
+Chart: [`charts/zoreon`](../charts/zoreon). Prefer Compose on a single VM ([CUSTOMER.md](CUSTOMER.md)); use Helm when you already run Kubernetes.
 
 ## Prerequisites
 
 - Kubernetes 1.25+
 - Helm 3
-- A built/pushed image (`docker build -t your-registry/zoreon:0.1.0 . && docker push …`)
+- Image built and pushed (`docker build -t your-registry/zoreon:0.1.0 . && docker push …`)
 
 ## Install (in-cluster Postgres)
 
@@ -25,6 +25,8 @@ helm upgrade --install zoreon ./charts/zoreon \
   --set ingress.hosts[0].paths[0].pathType=Prefix
 ```
 
+In-cluster Postgres is a single StatefulSet — fine for small installs; prefer managed Postgres in production.
+
 ## External Postgres
 
 ```bash
@@ -38,7 +40,7 @@ helm upgrade --install zoreon ./charts/zoreon \
   --set image.tag=0.1.0
 ```
 
-Or mount an existing Secret:
+### Existing Secret
 
 ```bash
 kubectl -n zoreon create secret generic zoreon-secrets \
@@ -51,10 +53,13 @@ kubectl -n zoreon create secret generic zoreon-secrets \
   --from-literal=VAPID_PRIVATE_KEY=
 
 helm upgrade --install zoreon ./charts/zoreon \
+  --namespace zoreon --create-namespace \
   --set secret.create=false \
   --set existingSecret=zoreon-secrets \
   --set postgresql.enabled=false \
-  …
+  --set image.repository=your-registry/zoreon \
+  --set image.tag=0.1.0 \
+  --set env.BETTER_AUTH_URL=https://zoreon.example.com
 ```
 
 ## Values of note
@@ -62,11 +67,13 @@ helm upgrade --install zoreon ./charts/zoreon \
 | Key | Purpose |
 | --- | --- |
 | `image.*` | Container image |
-| `env.BETTER_AUTH_URL` | Public origin |
-| `env.ZOREON_BOOTSTRAP_ADMIN_EMAIL` | First admin |
+| `env.BETTER_AUTH_URL` | Public origin (must match Ingress / TLS) |
+| `env.ZOREON_BOOTSTRAP_ADMIN_EMAIL` | First workspace admin |
 | `postgresql.enabled` | In-cluster Postgres StatefulSet |
-| `ingress.enabled` | Expose via Ingress |
-| `existingSecret` | Use cluster Secret instead of chart-managed |
+| `ingress.enabled` / `ingress.hosts` | Expose via Ingress |
+| `existingSecret` | Use a cluster Secret instead of chart-managed |
+
+Full reference: `charts/zoreon/values.yaml`. Env semantics: [ENV.md](ENV.md).
 
 ## Verify
 
@@ -75,3 +82,10 @@ kubectl -n zoreon rollout status deploy/zoreon
 kubectl -n zoreon port-forward svc/zoreon 8080:8080
 BASE_URL=http://localhost:8080 ./scripts/customer-smoke.sh
 ```
+
+Browser checklist: [TESTING.md](TESTING.md).
+
+## Related
+
+- [CUSTOMER.md](CUSTOMER.md) — Compose lifecycle  
+- [ARCHITECTURE.md](ARCHITECTURE.md) — product planes  

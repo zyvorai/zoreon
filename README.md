@@ -1,26 +1,67 @@
-# Zoreon
+<p align="center">
+  <img src="docs/assets/zoreon-readme-hero.jpg" alt="Zoreon — ops chat for cutover" width="920" />
+</p>
 
-Zyvor ops chat for infrastructure programs — war rooms, threads, huddles, and cutover runbooks.
+<p align="center">
+  <img src="public/brand/zyvor-mark.svg" alt="Zyvor" width="56" height="56" />
+</p>
 
-**Mattermost is the tape; Zoreon is the product.**
+<h1 align="center">Zoreon</h1>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+<p align="center">
+  <strong>Ops chat for infrastructure cutovers.</strong><br />
+  War rooms, threads, huddles, and runbooks — on your estate.
+</p>
 
-**Repo:** https://github.com/zyvorai/zoreon
+<p align="center">
+  Mattermost is the <em>tape</em>. Zoreon is the <em>product</em>.
+</p>
 
-Better Auth owns login. Mattermost (when wired) stores channel history; Zoreon adds invites, admin, search, notifications, PWA, and A/V huddles on its own Postgres.
+<p align="center">
+  <a href="https://github.com/zyvorai/zoreon/actions/workflows/ci.yml"><img src="https://github.com/zyvorai/zoreon/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-0f1115?labelColor=1c1c1e" alt="MIT" /></a>
+  <a href="https://github.com/zyvorai/zoreon"><img src="https://img.shields.io/badge/GitHub-zyvorai%2Fzoreon-1c1c1e?logo=github" alt="GitHub" /></a>
+  <a href="docs/CUSTOMER.md"><img src="https://img.shields.io/badge/Deploy-Compose%20%7C%20Helm-ff5a15?labelColor=1c1c1e" alt="Deploy" /></a>
+</p>
 
-## Docs
+<p align="center">
+  <a href="#quick-start">Quick start</a> ·
+  <a href="#deploy">Deploy</a> ·
+  <a href="#what-you-get">Features</a> ·
+  <a href="#architecture">Architecture</a> ·
+  <a href="#docs">Docs</a>
+</p>
 
-| Doc | Contents |
+---
+
+## Why Zoreon
+
+Cutover programs need a war room that lives next to the tape — not another SaaS chat island.
+
+| | |
 | --- | --- |
-| [docs/CUSTOMER.md](docs/CUSTOMER.md) | **Organizations** — code, Compose deploy, bootstrap, TLS |
-| [docs/HELM.md](docs/HELM.md) | Kubernetes Helm chart |
-| [docs/TESTING.md](docs/TESTING.md) | Unit / HTTP smoke / Playwright / browser acceptance |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Product model, data planes, realtime, huddles |
-| [docs/ENV.md](docs/ENV.md) | Environment variables |
-| [docs/DEPLOY.md](docs/DEPLOY.md) | Advanced — podman/systemd single-host script |
-| [docs/OPERATIONS.md](docs/OPERATIONS.md) | Advanced — day-2 host ops |
+| **Better Auth** | Email/password + Google / X. Invite-gated join. |
+| **Mattermost tape** | Optional durable channel history when you already run MM. |
+| **Zoreon Postgres** | Invites, stars, pins, bookmarks, reminders, admin, search, prefs, push. |
+| **Realtime** | SSE + Postgres `LISTEN`/`NOTIFY` across replicas. |
+| **Huddles** | In-channel A/V over WebRTC. |
+| **Self-host** | Compose, Helm, or podman/systemd — your network, your secrets. |
+
+---
+
+## What you get
+
+| Surface | Details |
+| --- | --- |
+| Channels & DMs | Threads, reactions, edit/delete, markdown, @mentions |
+| Cutover extras | Stars, pins, bookmarks, remind-in-1h, war-room waves |
+| Search | Palette filters `from:` `in:` `has:` `before:` `after:` + saved searches |
+| Notifications | Mute / mentions-only, desktop prefs, quiet hours |
+| Admin | Workspace admins, retention, audit log |
+| Invites | Multi-use link, SMTP send, or mailto |
+| PWA | Service worker, manifest, offline draft outbox; Web Push with `VAPID_*` |
+
+---
 
 ## Quick start
 
@@ -31,64 +72,103 @@ npm install
 npm run dev
 ```
 
-Binds all interfaces on port `8080`. Open `/login` (also `/signin`).
+Open [http://localhost:8080/login](http://localhost:8080/login).
 
-**Self-host (recommended for customers):** copy `.env.example` → `.env`, set secrets + `ZOREON_BOOTSTRAP_ADMIN_EMAIL`, then `docker compose up -d --build`. Full path: [docs/CUSTOMER.md](docs/CUSTOMER.md).
+```bash
+npm run typecheck && npm test && npm run build
+```
 
-## Sign-in & invites
-
-| Path | What |
-| --- | --- |
-| `/login` · `/signin` | Email/password or Google / X |
-| `/join?token=…` | Create account from invite |
-| **Zoreon → Invite people** | Multi-use link, SMTP send, or mailto |
-| `/api/auth/*` | Better Auth |
-
-Admins generate invites from the menu. SMTP Send works when `SMTP_*` is set — see [docs/CUSTOMER.md](docs/CUSTOMER.md) and [docs/ENV.md](docs/ENV.md).
-
-## Product surface
-
-| Area | Notes |
-| --- | --- |
-| Channels / DMs / threads | Mattermost tape or local SQL |
-| Stars, pins, bookmarks, reminders | Postgres extras |
-| Search | Palette modifiers `from:` `in:` `has:` `before:` `after:` + saved searches |
-| Notifications | Mute / mentions-only, desktop prefs, quiet hours |
-| Workspace admin | Roles, deactivate, retention purge (local extras), audit log |
-| Realtime | SSE `/api/zoreon/events` + Postgres `LISTEN`/`NOTIFY` |
-| Huddles | Channel A/V via WebRTC + `/api/rtc` |
-| PWA | `public/sw.js`, manifest, offline outbox; Web Push when `VAPID_*` set |
+---
 
 ## Deploy
 
-| Path | Doc |
-| --- | --- |
-| Docker Compose (greenfield) | [docs/CUSTOMER.md](docs/CUSTOMER.md) |
-| Kubernetes Helm | [docs/HELM.md](docs/HELM.md) |
-| Advanced podman/systemd | [docs/DEPLOY.md](docs/DEPLOY.md) |
+### Docker Compose (recommended)
 
 ```bash
-cp .env.example .env   # edit secrets
+cp .env.example .env   # secrets + ZOREON_BOOTSTRAP_ADMIN_EMAIL
 docker compose up -d --build
 BASE_URL=http://localhost:8080 ./scripts/customer-smoke.sh
 ```
+
+Full lifecycle (bootstrap admin, TLS, SMTP, Mattermost): **[docs/CUSTOMER.md](docs/CUSTOMER.md)**.
+
+### Kubernetes
+
+```bash
+helm upgrade --install zoreon ./charts/zoreon \
+  --namespace zoreon --create-namespace \
+  --set image.repository=your-registry/zoreon \
+  --set image.tag=0.1.0 \
+  --set env.BETTER_AUTH_URL=https://zoreon.example.com \
+  --set secret.BETTER_AUTH_SECRET="$(openssl rand -hex 32)"
+```
+
+Guide: **[docs/HELM.md](docs/HELM.md)**.
+
+### Advanced single-host
+
+`scripts/deploy-remote.sh` → podman + systemd + HTTPS proxy. Defaults: `zoreon-db` / `zoreon-net` / `zoreon-pgdata` (legacy `agora-*` auto-migrated). See **[docs/DEPLOY.md](docs/DEPLOY.md)**.
+
+---
+
+## Architecture
+
+```mermaid
+flowchart TB
+  browser["Browser · desktop shell · PWA"]
+  zoreon["Zoreon · TanStack Start"]
+  mm["Mattermost · optional tape"]
+  pg["Postgres · auth · extras · NOTIFY"]
+
+  browser -->|Better Auth · SSE · WebRTC| zoreon
+  zoreon -->|channels / posts| mm
+  zoreon --> pg
+```
+
+| Plane | Role |
+| --- | --- |
+| Browser | Session, SSE `/api/zoreon/events`, huddles via `/api/rtc` |
+| Zoreon | Product API, invites, admin, search, overlays |
+| Mattermost | Optional durable messaging when `MATTERMOST_*` is set |
+| Postgres | Auth + product extras; multi-replica realtime fan-out |
+
+More: **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
+
+> SQL tables keep the historical `agora_*` prefix. Product and repo name are **zoreon**.
+
+---
+
+## Docs
+
+| Doc | For |
+| --- | --- |
+| [CUSTOMER.md](docs/CUSTOMER.md) | Organizations — Compose, bootstrap, TLS |
+| [HELM.md](docs/HELM.md) | Kubernetes chart |
+| [TESTING.md](docs/TESTING.md) | Unit, curl smoke, Playwright, browser checklist |
+| [ENV.md](docs/ENV.md) | Environment variables |
+| [DEPLOY.md](docs/DEPLOY.md) | Advanced podman/systemd |
+| [OPERATIONS.md](docs/OPERATIONS.md) | Day-2 host ops |
+| [docs/README.md](docs/README.md) | Index |
+
+CI on every push/PR to `main`: unit → HTTP smoke → Playwright (Postgres service).
+
+---
 
 ## Layout
 
 | Path | What |
 | --- | --- |
-| `src/components/desktop/` | Menu bar, invite/admin dialogs, palette, window frame |
-| `src/components/zoreon/` | Channels, messages, threads, huddle bar, cutover rail |
-| `src/store/use-zoreon.ts` | Client store |
-| `src/lib/zoreon/` | Server API, Mattermost bridge, mail, realtime, admin |
-| `src/routes/api/zoreon/events.ts` | SSE fan-out |
-| `src/routes/api/rtc.ts` | Huddle signaling |
-| `migrations/` | Auth + messaging + invites + tokens + prefs + push |
-| `scripts/deploy-remote.sh` | Advanced remote deploy (podman + systemd) |
-| `docker-compose.yml` | Greenfield self-host (Postgres + app) |
+| `src/components/desktop/` | Shell, invite/admin, palette |
+| `src/components/zoreon/` | Channels, messages, threads, huddles |
+| `src/lib/zoreon/` | Server API, Mattermost, mail, realtime |
+| `charts/zoreon/` | Helm chart |
+| `docker-compose.yml` | Greenfield Postgres + app |
+| `e2e/` | Playwright smoke |
 | `scripts/customer-smoke.sh` | HTTP smoke against `BASE_URL` |
-| `public/sw.js` | Service worker |
+| `scripts/deploy-remote.sh` | Advanced remote deploy |
+
+---
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+[MIT](LICENSE) · [Zyvor AI Labs](https://zyvor.dev)
