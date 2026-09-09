@@ -1,0 +1,41 @@
+{
+  "url": "http://127.0.0.1:8081/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Zyvor Agora",
+      "hasCanvas": false,
+      "bodyTextLen": 1390,
+      "bodyTextHash": "2749a310290b957a18e47d90da50ddcdbd718d06146a76996126ffb87df1bd10",
+      "bodyTextPrefix": "Z Agora File Edit View Go Window Tue, Sep 8, 7:26 PM Agora — Wav",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Zyvor Agora",
+      "hasCanvas": false,
+      "bodyTextLen": 860,
+      "bodyTextHash": "5dd00a328aba9915f19f137cb863db5b632b9dfe8bb4606951f7949989538011",
+      "bodyTextPrefix": "Z Agora Tue, Sep 8, 7:26 PM Channels cutover-wave-3 Payments cor",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-built.json",
+  "divergesFromBaseline": true,
+  "baselineReasons": [
+    "desktop: body text replaced (similar length, page start changed)",
+    "mobile: body text replaced (similar length, page start changed)"
+  ]
+}

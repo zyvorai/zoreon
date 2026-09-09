@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+.node_modules.lock
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Build / cache
+.vercel/
+.tanstack/
+dist/
+.output/
+.nitro/
+.cache/
+*.log
+.grok/preview.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Local DB / runtime
+*.sqlite
+*.sqlite3
+pglite-debug.log
