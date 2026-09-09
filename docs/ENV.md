@@ -1,6 +1,6 @@
 # Environment variables
 
-See also [DEPLOY.md](DEPLOY.md) for how the lab deploy script injects these.
+See also [DEPLOY.md](DEPLOY.md) for how the deploy script injects these.
 
 ## Required (production)
 
@@ -8,17 +8,17 @@ See also [DEPLOY.md](DEPLOY.md) for how the lab deploy script injects these.
 | --- | --- |
 | `DATABASE_URL` | Postgres connection string |
 | `BETTER_AUTH_SECRET` | Session signing + AES-GCM for MM user tokens |
-| `BETTER_AUTH_URL` | Public origin (e.g. `https://host:30591`) |
-| `HOST` / `PORT` | Bind address (container: `0.0.0.0` / `8080`) |
+| `BETTER_AUTH_URL` | Public origin (e.g. `https://zoreon.example.com`) |
+| `HOST` / `PORT` | Bind address (container: all interfaces / `8080`) |
 
 ## Mattermost tape (optional)
 
 | Variable | Purpose |
 | --- | --- |
 | `MATTERMOST_URL` | Base URL of Mattermost TE |
-| `MATTERMOST_TOKEN` | Admin personal access token (lab: `tls/mm.token`) |
+| `MATTERMOST_TOKEN` | Admin personal access token (host: `tls/mm.token`) |
 
-Without both, Zoreon uses local SQL messaging.
+Without both, Zoreon uses local SQL messaging. There is **no** baked-in Mattermost host — set `MATTERMOST_URL` explicitly when deploying.
 
 ## SMTP (invite email)
 
@@ -31,7 +31,7 @@ Without both, Zoreon uses local SQL messaging.
 | `SMTP_PASS` | `SMTP_PASSWORD` | App password |
 | `SMTP_USE_TLS` | | `true` for STARTTLS on 587 |
 
-Deploy default source: `~/tt/zyvor-web/contact-mailer.env` (override with `ZOREON_SMTP_ENV`). Only `SMTP_*` keys are imported.
+Deploy: set `ZOREON_SMTP_ENV` to an env file path, or place SMTP keys where the deploy script looks (see [DEPLOY.md](DEPLOY.md)). Only `SMTP_*` keys are imported.
 
 ## Web Push (optional)
 
@@ -53,6 +53,7 @@ Service worker registers regardless; push subscriptions no-op without VAPID.
 | Variable | Purpose |
 | --- | --- |
 | `ZOREON_SMTP_ENV` | Path to SMTP env file for `deploy-remote.sh` |
+| `MATTERMOST_URL` | Mattermost base URL passed into the container |
 | `MATTERMOST_TOKEN` | Fallback if remote `tls/mm.token` missing |
 | `BUILDER` | `podman` (default) or `docker` |
 | `--port` | Public HTTPS port via deploy CLI (default `30591`) |

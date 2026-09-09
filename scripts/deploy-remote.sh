@@ -9,9 +9,10 @@
 #
 # Usage:
 #   ./scripts/deploy-remote.sh <host> [user] [options]
-#   ./scripts/deploy-remote.sh zoreon.example.com sus --port 30591
-#   ./scripts/deploy-remote.sh --user sus --host zoreon.example.com
-#   make deploy-remote H=zoreon.example.com U=sus
+#   ./scripts/deploy-remote.sh zoreon.example.com deploy --port 30591
+#   ./scripts/deploy-remote.sh --user deploy --host zoreon.example.com
+#   make deploy-remote H=zoreon.example.com U=deploy
+#   MATTERMOST_URL=https://mm.example.com ./scripts/deploy-remote.sh …
 #   ./scripts/deploy-remote.sh --uninstall
 #
 # Options:
@@ -19,7 +20,7 @@
 #   --uninstall     Stop/remove systemd unit + podman container/image workdir
 #   --dry-run       Print plan only
 #   --skip-smoke    Skip curl health check
-#   -u/--user NAME  SSH user (default: sus)
+#   -u/--user NAME  SSH user (required unless DEPLOY_USER / .deploy-remote-last)
 #   -H/--host ADDR  SSH host
 #
 # Env:
@@ -105,7 +106,7 @@ while [ $# -gt 0 ]; do
 done
 
 HOST="${EXPLICIT_HOST:-${POSITIONAL[0]:-${DEPLOY_HOST:-}}}"
-USER="${EXPLICIT_USER:-${POSITIONAL[1]:-${DEPLOY_USER:-sus}}}"
+USER="${EXPLICIT_USER:-${POSITIONAL[1]:-${DEPLOY_USER:-}}}"
 LAST_PORT=""
 
 if [ -z "$HOST" ] && zoreon_load_deploy_last "$REPO_DIR"; then
@@ -116,6 +117,7 @@ elif [ -f "$REPO_DIR/$STATE_FILE" ]; then
 fi
 
 [ -n "$HOST" ] || zoreon_error "Usage: $0 <host> [user] [options]  (see --help)"
+[ -n "$USER" ] || zoreon_error "SSH user required (positional [user], --user, or DEPLOY_USER)"
 
 if [[ "$HOST" == *@* ]]; then
   zoreon_parse_target "$HOST" "$USER"
@@ -330,8 +332,14 @@ UNIT_TMP="$(mktemp)"
 PROXY_TMP="$(mktemp)"
 trap 'rm -f "$UNIT_TMP" "$PROXY_TMP"' EXIT
 
-MM_URL="${MATTERMOST_URL:-http://zoreon.example.com:31722}"
-MM_ENV_ARGS="--env MATTERMOST_URL=${MM_URL}"
+MM_URL="${MATTERMOST_URL:-}"
+MM_ENV_ARGS=""
+if [ -n "$MM_URL" ]; then
+  MM_ENV_ARGS="--env MATTERMOST_URL=${MM_URL}"
+  zoreon_info "Mattermost URL wired (${MM_URL})"
+else
+  zoreon_warn "MATTERMOST_URL unset — set it to point at your Mattermost tape"
+fi
 if [ -n "${MM_TOKEN:-}" ]; then
   MM_ENV_ARGS="${MM_ENV_ARGS} --env MATTERMOST_TOKEN=${MM_TOKEN}"
   zoreon_info "Mattermost token wired (messaging via tape)"

@@ -37,7 +37,7 @@ zoreon_parse_target() {
     HOST="${_host#*@}"
   else
     HOST="$_host"
-    USER="${_user:-sus}"
+    USER="${_user:-}"
   fi
 }
 

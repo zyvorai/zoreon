@@ -9,4 +9,4 @@ Public product documentation for **[Zoreon](https://github.com/zyvorai/zoreon)**
 | [ENV.md](ENV.md) | Operators — env vars and secrets |
 | [OPERATIONS.md](OPERATIONS.md) | Operators — smoke, logs, day-2 |
 
-Start at the root [README](../README.md) for clone / run / feature overview.
+Start at the root [README](../README.md) for clone / run / feature overview. Self-host details live in [DEPLOY.md](DEPLOY.md); do not publish private hostnames or addresses in this tree.

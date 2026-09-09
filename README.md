@@ -6,11 +6,7 @@ Zyvor ops chat for infrastructure programs — war rooms, threads, huddles, and 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-| | |
-| --- | --- |
-| **Repo** | https://github.com/zyvorai/zoreon |
-| **Lab** | https://zoreon.example.com:30591/ (self-signed TLS) |
-| **Mattermost tape** | http://zoreon.example.com:31722/ |
+**Repo:** https://github.com/zyvorai/zoreon
 
 Better Auth owns login. Mattermost (when wired) stores channel history; Zoreon adds invites, admin, search, notifications, PWA, and A/V huddles on its own Postgres.
 
@@ -19,7 +15,7 @@ Better Auth owns login. Mattermost (when wired) stores channel history; Zoreon a
 | Doc | Contents |
 | --- | --- |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Product model, data planes, realtime, huddles |
-| [docs/DEPLOY.md](docs/DEPLOY.md) | Lab / self-host deploy (podman + systemd) |
+| [docs/DEPLOY.md](docs/DEPLOY.md) | Self-host deploy (podman + systemd) |
 | [docs/ENV.md](docs/ENV.md) | Environment variables |
 | [docs/OPERATIONS.md](docs/OPERATIONS.md) | Day-2 ops, smoke checks, secrets layout |
 
@@ -32,7 +28,7 @@ npm install
 npm run dev
 ```
 
-Binds `0.0.0.0:8080`. Open `/login` (also `/signin`).
+Binds all interfaces on port `8080`. Open `/login` (also `/signin`).
 
 ## Sign-in & invites
 
@@ -43,7 +39,7 @@ Binds `0.0.0.0:8080`. Open `/login` (also `/signin`).
 | **Zoreon → Invite people** | Multi-use link, SMTP send, or mailto |
 | `/api/auth/*` | Better Auth |
 
-Admins generate invites from the menu. SMTP Send uses the same Zoho mailer as zyvor-web when configured — see [docs/DEPLOY.md](docs/DEPLOY.md) and [docs/ENV.md](docs/ENV.md).
+Admins generate invites from the menu. SMTP Send uses Zoho (or any SMTP) when configured — see [docs/DEPLOY.md](docs/DEPLOY.md) and [docs/ENV.md](docs/ENV.md).
 
 ## Product surface
 
@@ -61,11 +57,11 @@ Admins generate invites from the menu. SMTP Send uses the same Zoho mailer as zy
 ## Remote deploy
 
 ```bash
-./scripts/deploy-remote.sh zoreon.example.com sus --port 30591
-make deploy-remote H=zoreon.example.com U=sus PORT=30591
+./scripts/deploy-remote.sh <host> <user> --port 30591
+make deploy-remote H=<host> U=<user> PORT=30591
 ```
 
-Full guide: [docs/DEPLOY.md](docs/DEPLOY.md). SMTP is pulled from `~/tt/zyvor-web/contact-mailer.env` by default (`ZOREON_SMTP_ENV` to override).
+Full guide: [docs/DEPLOY.md](docs/DEPLOY.md). SMTP can be loaded from an env file (`ZOREON_SMTP_ENV`); see [docs/ENV.md](docs/ENV.md).
 
 ## Layout
 

@@ -1,19 +1,10 @@
 # Operations
 
-Day-2 notes for the public **[zyvorai/zoreon](https://github.com/zyvorai/zoreon)** lab / self-host.
+Day-2 notes for self-hosted **[Zoreon](https://github.com/zyvorai/zoreon)**.
 
-## Lab endpoints
+## Secrets layout
 
-| Service | URL |
-| --- | --- |
-| Zoreon | https://zoreon.example.com:30591/ |
-| Mattermost tape | http://zoreon.example.com:31722/ |
-
-Accept the self-signed cert warning once in the browser.
-
-## Secrets layout (lab host)
-
-Under `~/.deployments/zoreon/tls/`:
+Under `~/.deployments/zoreon/tls/` on the app host:
 
 | File | Purpose |
 | --- | --- |
@@ -23,7 +14,7 @@ Under `~/.deployments/zoreon/tls/`:
 | `smtp.env` | SMTP (written by deploy; mode 600) |
 | `cert.pem` / `key.pem` | HTTPS proxy |
 
-Postgres container/volume names remain `agora-db` / `agora-pgdata` / network `agora-net` (pre-rename). Do not rename on a live lab without a migration plan.
+Postgres container/volume names remain `agora-db` / `agora-pgdata` / network `agora-net` (pre-rename). Do not rename on a live host without a migration plan.
 
 ## Units
 
@@ -35,9 +26,12 @@ sudo podman ps --filter name=zoreon
 
 ## Smoke checklist
 
+Replace `<host>`, `<user>`, and `<port>` with your deployment values.
+
 ```bash
-HOST=zoreon.example.com
-PORT=30591
+HOST=<host>
+USER=<user>
+PORT=<port>   # default HTTPS proxy port is 30591
 BASE=https://${HOST}:${PORT}
 
 curl -kfsS -o /dev/null -w "home:%{http_code}\n" "$BASE/"
@@ -47,7 +41,7 @@ curl -kfsS -o /dev/null -w "manifest:%{http_code}\n" "$BASE/__grok/manifest.webm
 curl -sk -o /dev/null -w "events:%{http_code}\n" "$BASE/api/zoreon/events"   # expect 401 unauth
 curl -sk -o /dev/null -w "rtc:%{http_code}\n" "$BASE/api/rtc?room=t&peer=p1&name=t&since=0"
 
-ssh sus@${HOST} 'sudo podman exec $(sudo podman ps -q -f name=zoreon) \
+ssh ${USER}@${HOST} 'sudo podman exec $(sudo podman ps -q -f name=zoreon) \
   sh -c "echo SMTP_HOST=\$SMTP_HOST FROM=\$SMTP_FROM USER=\${SMTP_USER:+set}"'
 ```
 
@@ -65,13 +59,13 @@ Browser (signed-in admin):
 ```bash
 git clone https://github.com/zyvorai/zoreon.git   # or pull in an existing checkout
 cd zoreon
-./scripts/deploy-remote.sh zoreon.example.com sus --port 30591
+./scripts/deploy-remote.sh <host> <user> --port 30591
 ```
 
 ## Uninstall app units (keeps Postgres volume)
 
 ```bash
-./scripts/deploy-remote.sh zoreon.example.com sus --uninstall
+./scripts/deploy-remote.sh <host> <user> --uninstall
 ```
 
 ## Related

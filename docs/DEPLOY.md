@@ -1,10 +1,10 @@
 # Remote deploy
 
-Ship **[Zoreon](https://github.com/zyvorai/zoreon)** to a lab host: SSH → rsync → **podman** image build → **systemd** units (app + HTTPS proxy).
+Ship **[Zoreon](https://github.com/zyvorai/zoreon)** to a host: SSH → rsync → **podman** image build → **systemd** units (app + HTTPS proxy).
 
 ## Prerequisites (remote host)
 
-- SSH key auth for the deploy user (default `sus`)
+- SSH key auth for the deploy user
 - Passwordless `sudo`
 - `podman` (or set `BUILDER=docker`)
 
@@ -15,22 +15,22 @@ git clone https://github.com/zyvorai/zoreon.git
 cd zoreon
 
 ./scripts/deploy-remote.sh <host> [user] [--port 30591]
-make deploy-remote H=<host> U=sus PORT=30591
+make deploy-remote H=<host> U=<user> PORT=30591
 
-# Optional Mattermost tape URL (token from remote tls/mm.token or MATTERMOST_TOKEN)
-MATTERMOST_URL=http://zoreon.example.com:31722 ./scripts/deploy-remote.sh zoreon.example.com sus
+# Optional Mattermost tape (token from remote tls/mm.token or MATTERMOST_TOKEN)
+MATTERMOST_URL=https://mattermost.example.com ./scripts/deploy-remote.sh <host> <user>
 ```
 
 | Artifact | Value |
 | --- | --- |
-| Staging | `~/.deployments/zoreon` (TLS carried from `~/.deployments/agora` once) |
+| Staging | `~/.deployments/zoreon` (TLS carried from `~/.deployments/agora` once, if present) |
 | Image | `zoreon:latest` |
 | Units | `zoreon.service` + `zoreon-https.service` |
-| Public port | `30591` (HTTPS proxy) → upstream `127.0.0.1:13091` → container `8080` |
+| Public port | `30591` (HTTPS proxy, default) → loopback upstream → container `8080` |
 | State file | `.deploy-remote-last` (local, gitignored) |
 | Postgres | legacy `agora-db` / `agora-pgdata` on `agora-net` |
 
-## Secrets on the lab host
+## Secrets on the host
 
 | File | Purpose |
 | --- | --- |
@@ -44,15 +44,12 @@ Full env reference: [ENV.md](ENV.md).
 
 ### SMTP (invite email)
 
-Deploy reads Zoho settings from zyvor-web by default:
-
 ```bash
-# Default path
-~/tt/zyvor-web/contact-mailer.env
-
-# Or override
-ZOREON_SMTP_ENV=/path/to/smtp.env ./scripts/deploy-remote.sh zoreon.example.com sus
+# Point deploy at an SMTP env file (Zoho or other)
+ZOREON_SMTP_ENV=/path/to/smtp.env ./scripts/deploy-remote.sh <host> <user>
 ```
+
+If unset, deploy looks for `~/tt/zyvor-web/contact-mailer.env` when that path exists on the machine running the script.
 
 Accepted keys (zyvor-web or Zoreon names):
 
@@ -65,7 +62,7 @@ Accepted keys (zyvor-web or Zoreon names):
 | `SMTP_PASSWORD` / `SMTP_PASS` | App password |
 | `SMTP_USE_TLS` | `true` for STARTTLS on 587 |
 
-Only `SMTP_*` lines are imported (Razorpay / Slack / etc. in the same file are ignored). The container gets `SMTP_USER` / `SMTP_PASS`; `src/lib/zoreon/mail.server.ts` also accepts the zyvor-web aliases.
+Only `SMTP_*` lines are imported. The container gets `SMTP_USER` / `SMTP_PASS`; `src/lib/zoreon/mail.server.ts` also accepts the zyvor-web aliases.
 
 Without SMTP, **Invite people** still offers copy-link and mailto.
 
@@ -77,7 +74,7 @@ Set `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` on the container if you want push s
 
 ```bash
 ./scripts/deploy-remote.sh <host> <user> --uninstall
-# or reuse last host
+# or reuse last host from .deploy-remote-last
 ./scripts/deploy-remote.sh --uninstall
 ```
 
@@ -93,12 +90,3 @@ ssh <user>@<host> 'sudo podman exec $(sudo podman ps -q -f name=zoreon) sh -c "e
 ```
 
 More day-2 checks: [OPERATIONS.md](OPERATIONS.md).
-
-## Current lab
-
-| Service | URL |
-| --- | --- |
-| Zoreon | https://zoreon.example.com:30591/ |
-| Mattermost | http://zoreon.example.com:31722/ (`/opt/mattermost-docker/`) |
-
-Login: Zyvor account or an invite from **Zoreon → Invite people**.
