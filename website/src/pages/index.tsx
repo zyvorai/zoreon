@@ -1,6 +1,7 @@
 import type {ReactNode} from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import Layout from '@theme/Layout';
 import Heading from '@theme/Heading';
 import FeatureHighlights from '@site/src/components/FeatureHighlights';
@@ -9,10 +10,11 @@ import Reveal from '@site/src/components/Reveal';
 import styles from './index.module.css';
 
 function HomepageHeader() {
+  const hero = useBaseUrl('/zoreon-readme-hero.jpg');
   return (
     <header className={clsx('hero hero--primary', styles.heroBanner)}>
       <div className="container">
-        <div className={clsx(styles.heroGridSingle, 'text--center')}>
+        <div className={clsx(styles.heroText, 'text--center')}>
           <Heading as="h1" className="hero__title">
             Ops chat for
             <br />
@@ -38,6 +40,13 @@ function HomepageHeader() {
             </Link>
           </div>
         </div>
+      </div>
+      <div className={styles.heroMediaWrap}>
+        <img
+          className={styles.heroMedia}
+          src={hero}
+          alt="Zoreon — ops chat for cutover"
+        />
       </div>
     </header>
   );
