@@ -1,27 +1,38 @@
-# Zoreon
+<p align="center">
+  <img src="docs/assets/zoreon-readme-hero.jpg" alt="Zoreon — ops chat for cutover" width="920" />
+</p>
 
-[![CI](https://github.com/zyvorai/zoreon/actions/workflows/ci.yml/badge.svg)](https://github.com/zyvorai/zoreon/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.1.0-informational)](package.json)
+<p align="center">
+  <img src="public/brand/zyvor-mark.svg" alt="Zyvor" width="56" height="56" />
+</p>
 
-![Zoreon — ops chat for infrastructure cutovers](docs/social/zoreon-share-card.png)
+<h1 align="center">Zoreon</h1>
 
-**Ops chat for infrastructure cutovers — war rooms, threads, huddles, and runbooks on your estate.**
+<p align="center">
+  <strong>Ops chat for infrastructure cutovers.</strong><br />
+  War rooms, threads, huddles, and runbooks — on your estate.
+</p>
 
-Mattermost is the *tape*. Zoreon is the *product*. Self-host with Docker Compose, Helm, or podman/systemd — your network, your secrets.
+<p align="center">
+  Mattermost is the <em>tape</em>. Zoreon is the <em>product</em>.
+</p>
 
-📖 **[Customer deploy guide](docs/CUSTOMER.md)** · [Helm](docs/HELM.md) · [Architecture](docs/ARCHITECTURE.md) · [Docs index](docs/README.md)
+<p align="center">
+  <a href="https://github.com/zyvorai/zoreon/actions/workflows/ci.yml"><img src="https://github.com/zyvorai/zoreon/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-0f1115?labelColor=1c1c1e" alt="MIT" /></a>
+  <a href="https://github.com/zyvorai/zoreon"><img src="https://img.shields.io/badge/GitHub-zyvorai%2Fzoreon-1c1c1e?logo=github" alt="GitHub" /></a>
+  <a href="docs/CUSTOMER.md"><img src="https://img.shields.io/badge/Deploy-Compose%20%7C%20Helm-ff5a15?labelColor=1c1c1e" alt="Deploy" /></a>
+</p>
 
-## Contents
+<p align="center">
+  <a href="#quick-start">Quick start</a> ·
+  <a href="#deploy">Deploy</a> ·
+  <a href="#what-you-get">Features</a> ·
+  <a href="#architecture">Architecture</a> ·
+  <a href="#docs">Docs</a>
+</p>
 
-- [Why Zoreon](#why-zoreon)
-- [What you get](#what-you-get)
-- [Quick start](#quick-start)
-- [Deploy](#deploy)
-- [Architecture](#architecture)
-- [Docs](#docs)
-- [Layout](#layout)
-- [License](#license)
+---
 
 ## Why Zoreon
 
@@ -36,6 +47,8 @@ Cutover programs need a war room that lives next to the tape — not another Saa
 | **Huddles** | In-channel A/V over WebRTC. |
 | **Self-host** | Compose, Helm, or podman/systemd — your network, your secrets. |
 
+---
+
 ## What you get
 
 | Surface | Details |
@@ -47,6 +60,8 @@ Cutover programs need a war room that lives next to the tape — not another Saa
 | Admin | Workspace admins, retention, audit log |
 | Invites | Multi-use link, SMTP send, or mailto |
 | PWA | Service worker, manifest, offline draft outbox; Web Push with `VAPID_*` |
+
+---
 
 ## Quick start
 
@@ -62,6 +77,8 @@ Open [http://localhost:8080/login](http://localhost:8080/login).
 ```bash
 npm run typecheck && npm test && npm run build
 ```
+
+---
 
 ## Deploy
 
@@ -92,6 +109,8 @@ Guide: **[docs/HELM.md](docs/HELM.md)**.
 
 `scripts/deploy-remote.sh` → podman + systemd + HTTPS proxy. Defaults: `zoreon-db` / `zoreon-net` / `zoreon-pgdata` (legacy `agora-*` auto-migrated). See **[docs/DEPLOY.md](docs/DEPLOY.md)**.
 
+---
+
 ## Architecture
 
 ```mermaid
@@ -117,6 +136,8 @@ More: **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
 
 > SQL tables keep the historical `agora_*` prefix. Product and repo name are **zoreon**.
 
+---
+
 ## Docs
 
 | Doc | For |
@@ -131,6 +152,8 @@ More: **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
 
 CI on every push/PR to `main`: unit → HTTP smoke → Playwright (Postgres service).
 
+---
+
 ## Layout
 
 | Path | What |
@@ -143,6 +166,8 @@ CI on every push/PR to `main`: unit → HTTP smoke → Playwright (Postgres serv
 | `e2e/` | Playwright smoke |
 | `scripts/customer-smoke.sh` | HTTP smoke against `BASE_URL` |
 | `scripts/deploy-remote.sh` | Advanced remote deploy |
+
+---
 
 ## License
 
