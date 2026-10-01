@@ -171,4 +171,6 @@ CI on every push/PR to `main`: unit → HTTP smoke → Playwright (Postgres serv
 
 ## License
 
+Commercial subscriptions and support: see [docs/SUBSCRIPTION-MODEL.md](docs/SUBSCRIPTION-MODEL.md).
+
 [MIT](LICENSE) · [Zyvor AI Labs](https://zyvor.dev)
