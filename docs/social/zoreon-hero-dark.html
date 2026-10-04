@@ -8,58 +8,47 @@
   Build: ./docs/social/build-hero-dark.sh  ->  zoreon-hero-dark.jpg (2400x1260)
 -->
 <style>
-  :root { --blue:#0071e3; --signal:#2997ff; --cyan:#64d2ff; --green:#30d158; --amber:#ff9f0a;
+  :root { --blue:#0071e3; --signal:#2997ff; --cyan:#64d2ff; --green:#30d158; --amber:#ff9f0a; --red:#ff453a; --violet:#bf5af2;
     --sans:'SF Pro Display','Helvetica Neue',Helvetica,Arial,sans-serif; --mono:'SF Mono',Menlo,Consolas,monospace; }
   * { box-sizing:border-box; }
   html,body { margin:0; padding:0; }
   body { width:1200px; height:630px; overflow:hidden; color:#f5f5f7; font-family:var(--sans); position:relative; background:#000; }
   .aurora { position:absolute; inset:0;
-    background:radial-gradient(720px 460px at 80% 16%, rgba(41,151,255,.40), transparent 62%),
-               radial-gradient(600px 420px at 104% 98%, rgba(100,210,255,.20), transparent 60%),
+    background:radial-gradient(720px 460px at 80% 16%, rgba(41,151,255,.34), transparent 62%),
+               radial-gradient(600px 420px at 104% 98%, rgba(100,210,255,.16), transparent 60%),
                radial-gradient(520px 380px at 6% 110%, rgba(0,113,227,.28), transparent 60%); }
-  .grid { position:absolute; inset:0; opacity:.09;
-    background-image:linear-gradient(rgba(120,180,255,.9) 1px,transparent 1px),linear-gradient(90deg,rgba(120,180,255,.9) 1px,transparent 1px);
-    background-size:44px 44px; -webkit-mask-image:radial-gradient(900px 520px at 72% 42%, #000 18%, transparent 75%); }
-  .left { position:absolute; left:60px; top:52px; width:560px; z-index:3; }
+  .copy { position:absolute; left:60px; top:52px; width:560px; z-index:3; }
   .brand { display:flex; align-items:center; gap:12px; font-family:var(--mono); font-size:14px; letter-spacing:.18em; text-transform:uppercase; color:#a1a1a6; }
   .brand b { color:#fff; }
   .word { margin:20px 0 0; font-size:112px; line-height:.95; font-weight:800; letter-spacing:-.05em; white-space:nowrap;
     background:linear-gradient(92deg,#fff 0%,#e3f0ff 38%,var(--signal) 74%,var(--cyan) 100%); -webkit-background-clip:text; background-clip:text; color:transparent; padding-bottom:6px; }
   .tag { margin:14px 0 0; font-size:31px; line-height:1.15; font-weight:700; letter-spacing:-.02em; }
   .tag em { font-style:normal; color:var(--signal); }
-  .lede { margin:12px 0 0; font-size:18px; line-height:1.45; color:#b8b8bf; width:520px; }
+  .lede { margin:12px 0 0; font-size:18px; line-height:1.45; color:#b8b8bf; width:520px; text-shadow:0 1px 12px #000; }
   .stats { margin-top:24px; display:flex; gap:32px; }
   .stat b { display:block; font-size:34px; font-weight:800; letter-spacing:-.03em; color:#fff; }
   .stat span { font-family:var(--mono); font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:#8e8e93; }
   .pill { position:absolute; left:60px; bottom:40px; display:flex; gap:10px; z-index:3; }
-  .pill span { font-family:var(--mono); font-size:13.5px; font-weight:700; padding:7px 13px; border-radius:18px; border:1.5px solid rgba(255,255,255,.2); color:#e5e5ea; background:rgba(255,255,255,.04); }
+  .pill span { font-family:var(--mono); font-size:13.5px; font-weight:700; padding:7px 13px; border-radius:18px; border:1.5px solid rgba(255,255,255,.2); color:#e5e5ea; background:rgba(0,0,0,.6); }
   .pill span.b { background:var(--blue); border-color:var(--blue); color:#fff; box-shadow:0 0 24px rgba(0,113,227,.55); }
-
-  .right { position:absolute; left:652px; top:96px; width:560px; z-index:2; }
-  .win { position:relative; width:560px; border-radius:16px; overflow:hidden; z-index:2;
-    background:linear-gradient(180deg, rgba(22,24,30,.94), rgba(10,11,14,.96));
-    box-shadow:0 50px 100px rgba(0,0,0,.75), 0 0 0 1px rgba(255,255,255,.14), 0 0 90px rgba(41,151,255,.22);
-    transform:perspective(1600px) rotateY(-14deg) rotateX(4deg); transform-origin:left center; }
-  .bar { height:34px; display:flex; align-items:center; gap:8px; padding:0 14px; background:rgba(255,255,255,.05); border-bottom:1px solid rgba(255,255,255,.07); }
-  .bar i { width:11px; height:11px; border-radius:50%; background:#ff5f57; } .bar i:nth-child(2){background:#febc2e} .bar i:nth-child(3){background:#28c840}
-  .bar em { margin-left:auto; margin-right:auto; font-style:normal; font-family:var(--mono); font-size:12px; color:#8e8e93; transform:translateX(-24px); }
-  .term { min-height:214px; padding:20px 22px 24px; font-family:var(--mono); font-size:15.5px; line-height:1.75; }
-  .l { white-space:pre; overflow:hidden; text-overflow:ellipsis; color:#f5f5f7; }
-  .l .p { color:var(--signal); font-weight:700; }
-  .l.out { color:#a1a1a6; }
-  .l.cm { color:#6e6e73; }
-  .l.ok { color:#d1f7dc; } .l.ok span { color:var(--green); font-weight:700; }
-  .l.warn { color:#ffe1b0; } .l.warn span { color:var(--amber); font-weight:700; }
-  .cur { display:inline-block; width:9px; height:18px; background:var(--signal); vertical-align:-3px; box-shadow:0 0 12px var(--signal); }
-  .chips { margin:34px 0 0 38px; width:480px; display:flex; flex-wrap:wrap; gap:10px; position:relative; z-index:3; }
-  .chips span { font-family:var(--mono); font-size:13px; font-weight:700; letter-spacing:.04em; padding:7px 12px; border-radius:14px;
-    color:#cfe6ff; background:rgba(10,20,35,.82); border:1px solid rgba(41,151,255,.45); box-shadow:0 0 18px rgba(41,151,255,.18); }
+  .art { position:absolute; left:520px; top:0; width:680px; height:630px; z-index:2; }
+  .art svg { display:block; }
+  #labels { position:absolute; inset:0; z-index:4; pointer-events:none; }
+  .lbl { position:absolute; font-family:var(--mono); font-size:12.5px; color:#a1a1a6; text-align:center; transform:translate(-50%,-50%); white-space:nowrap; }
+  .lbl b { display:block; font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:#e5e5ea; }
+  .lbl span { display:block; margin-top:3px; }
+  .lbl.box { padding:7px 12px; border-radius:12px; background:rgba(8,10,14,.85); border:1px solid rgba(255,255,255,.14); }
+  .lbl.chip { padding:6px 11px; border-radius:13px; font-size:12.5px; font-weight:700; color:#cfe6ff; background:rgba(10,20,35,.85); border:1px solid rgba(41,151,255,.5); box-shadow:0 0 16px rgba(41,151,255,.2); }
+  .lbl.left { transform:translate(0,-50%); text-align:left; }
+  .lbl.right { transform:translate(-100%,-50%); text-align:right; }
+  .ok { color:var(--green) !important; } .warn { color:var(--amber) !important; } .bad { color:var(--red) !important; } .sig { color:var(--signal) !important; } .cy { color:var(--cyan) !important; } .vi { color:var(--violet) !important; }
 </style>
 </head>
 <body>
 <div class="aurora"></div>
-<div class="grid"></div>
-<div class="left">
+<div class="art"><svg id="art" width="680" height="630" viewBox="0 0 680 630" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<div id="labels"></div>
+<div class="copy">
   <div class="brand"><svg viewBox="0 0 64 64" width="30" height="30" aria-hidden="true"><defs><linearGradient id="zb" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff5a15"/><stop offset="1" stop-color="#cc420a"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#zb)"/><path d="M18.5,20.5 45.5,20.5 18.5,43.5 45.5,43.5" fill="none" stroke="#fff" stroke-width="8.3" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Zyvor</b><span>&middot;</span><span>Ops chat for cutovers</span></div>
   <div class="word">Zoreon</div>
   <div class="tag">War rooms on your estate.<br><em>Not another chat island.</em></div>
@@ -67,8 +56,118 @@
   <div class="stats"><div class="stat"><b>3</b><span>deploy paths</span></div><div class="stat"><b>5</b><span>search filters</span></div><div class="stat"><b>SSE</b><span>realtime fan-out</span></div></div>
 </div>
 <div class="pill"><span class="b">github.com/zyvorai/zoreon</span><span>MIT</span></div>
-<div class="right"><div class="win"><div class="bar"><i></i><i></i><i></i><em>zoreon</em></div>
-<div class="term"><div class="l"><span class="p">$</span> docker compose up -d --build</div><div class="l"><span class="p">$</span> ./scripts/customer-smoke.sh</div><div class="l out">Zoreon smoke -&gt; http://localhost:8080</div><div class="l out">OK   login      200 -&gt; http://localhost:8080/login</div><div class="l out">OK   events     401 -&gt; .../api/zoreon/events</div><div class="l ok"><span>&#10003;</span> Smoke OK</div><div class="l"><span class="p">$</span> <i class="cur"></i></div></div></div>
-<div class="chips"><span>TypeScript</span><span>TanStack Start</span><span>Better Auth</span><span>Postgres</span><span>WebRTC</span><span>Helm</span></div></div>
+<script>
+var Z = (function () {
+  var NS = 'http://www.w3.org/2000/svg', svg = document.getElementById('art'), labels = document.getElementById('labels');
+  var seed = 20261004;
+  function rnd() { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; }
+  function el(tag, a, parent) { var n = document.createElementNS(NS, tag); for (var k in a) n.setAttribute(k, a[k]); (parent || svg).appendChild(n); return n; }
+  function g(attrs) { return el('g', attrs || {}); }
+  function label(x, y, inner, cls, style) { var d = document.createElement('div'); d.className = 'lbl ' + (cls || ''); d.style.left = (520 + x) + 'px'; d.style.top = y + 'px'; if (style) d.setAttribute('style', d.getAttribute('style') + ';' + style); d.innerHTML = inner; labels.appendChild(d); return d; }
+  return { NS: NS, svg: svg, W: 680, H: 630, rnd: rnd, el: el, g: g, label: label,
+    reseed: function (s) { seed = s; },
+    c: { blue: '#0071e3', signal: '#2997ff', cyan: '#64d2ff', green: '#30d158', amber: '#ff9f0a', red: '#ff453a', violet: '#bf5af2', teal: '#40c8e0', indigo: '#5e5ce6', pink: '#ff375f', white: '#f5f5f7', grey: '#8e8e93' } };
+})();
+(function () {
+// Zoreon: cutover countdown ring. Chat bubbles and reply threads cascade around the clock; a huddle,
+// a pinned message and the smoke check sit on the spiral.
+var C = Z.c, cx = 395, cy = 300, R = 106;
+var d = Z.el('defs', {});
+d.innerHTML = '<filter id="zrgl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>' +
+  '<filter id="zrsf" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="16"/></filter>' +
+  '<linearGradient id="zrarc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#64d2ff"/><stop offset="1" stop-color="#0071e3"/></linearGradient>' +
+  '<radialGradient id="zrcore"><stop offset="0" stop-color="#2997ff" stop-opacity=".35"/><stop offset="1" stop-color="#2997ff" stop-opacity="0"/></radialGradient>' +
+  '<linearGradient id="zrbub" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16243a" stop-opacity=".95"/><stop offset="1" stop-color="#0b1424" stop-opacity=".95"/></linearGradient>';
+
+function pol(r, deg) { var a = (deg - 90) * Math.PI / 180; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; }
+function arc(r, d0, d1) { var a = pol(r, d0), b = pol(r, d1); return 'M' + a[0].toFixed(1) + ',' + a[1].toFixed(1) + ' A' + r + ',' + r + ' 0 ' + ((d1 - d0) > 180 ? 1 : 0) + ' 1 ' + b[0].toFixed(1) + ',' + b[1].toFixed(1); }
+
+Z.el('circle', { cx: cx, cy: cy, r: R + 90, fill: 'url(#zrcore)' });
+// faint message-dot texture
+for (var k = 0; k < 50; k++) Z.el('circle', { cx: 80 + Z.rnd() * 140, cy: 30 + Z.rnd() * 400, r: .8 + Z.rnd() * 1.2, fill: C.cyan, opacity: (.08 + Z.rnd() * .25).toFixed(2) });
+
+function onSpiral(t) { var deg = -40 + t * 345, r = 198 - t * 34, a = (deg - 90) * Math.PI / 180; return [cx + r * Math.cos(a), cy + r * 1.15 * Math.sin(a)]; }
+// thread spiral behind everything
+var spiral = '';
+for (var t = 0; t <= 1.001; t += 0.01) {
+  var p = onSpiral(t);
+  spiral += (t === 0 ? 'M' : ' L') + p[0].toFixed(1) + ',' + p[1].toFixed(1);
+}
+var sp = Z.el('path', { d: spiral, fill: 'none', stroke: 'rgba(120,185,255,.32)', 'stroke-width': 1.2, 'stroke-dasharray': '3 5' });
+
+// clock ring: ticks
+for (var i = 0; i < 60; i++) {
+  var big = i % 5 === 0, a = pol(R + 18, i * 6), b = pol(R + (big ? 30 : 24), i * 6);
+  Z.el('line', { x1: a[0], y1: a[1], x2: b[0], y2: b[1], stroke: big ? 'rgba(200,225,255,.7)' : 'rgba(150,190,240,.3)', 'stroke-width': big ? 2 : 1 });
+}
+Z.el('circle', { cx: cx, cy: cy, r: R, fill: 'rgba(6,10,18,.9)', stroke: 'rgba(120,185,255,.18)', 'stroke-width': 10 });
+// countdown: remaining time bright, elapsed dim
+var rem = 250;
+Z.el('path', { d: arc(R, rem, 359.9), fill: 'none', stroke: 'rgba(120,185,255,.12)', 'stroke-width': 10 });
+Z.el('path', { d: arc(R, 0, rem), fill: 'none', stroke: 'url(#zrarc)', 'stroke-width': 10, 'stroke-linecap': 'round', filter: 'url(#zrgl)' });
+var hd = pol(R, rem);
+Z.el('circle', { cx: hd[0], cy: hd[1], r: 9, fill: C.cyan, opacity: .35, filter: 'url(#zrsf)' });
+Z.el('circle', { cx: hd[0], cy: hd[1], r: 6, fill: '#fff', filter: 'url(#zrgl)' });
+// wave notches on the inner ring
+[90, 180, 270].forEach(function (w, n) {
+  var a = pol(R - 16, w), b = pol(R - 26, w);
+  Z.el('line', { x1: a[0], y1: a[1], x2: b[0], y2: b[1], stroke: w < rem ? C.signal : 'rgba(150,190,240,.4)', 'stroke-width': 2.4, 'stroke-linecap': 'round' });
+});
+Z.el('circle', { cx: cx, cy: cy, r: R - 40, fill: 'none', stroke: 'rgba(120,185,255,.15)', 'stroke-dasharray': '2 5' });
+Z.label(cx, cy - 6, '<b>cutover</b><span>T-minus &middot; war room</span>');
+
+// bubbles
+function bubble(x, y, w, h, tail, accent, lines) {
+  var r = 12, x0 = x - w / 2, y0 = y - h / 2, x1 = x + w / 2, y1 = y + h / 2, tx = tail < 0 ? x0 + 18 : x1 - 18;
+  var dpath = 'M' + (x0 + r) + ',' + y0 + ' H' + (x1 - r) + ' Q' + x1 + ',' + y0 + ' ' + x1 + ',' + (y0 + r) + ' V' + (y1 - r) + ' Q' + x1 + ',' + y1 + ' ' + (x1 - r) + ',' + y1 +
+    (tail > 0 ? ' L' + (tx + 6) + ',' + y1 + ' L' + (tx + 10) + ',' + (y1 + 10) + ' L' + (tx - 4) + ',' + y1 : '') +
+    (tail < 0 ? ' L' + (tx + 4) + ',' + y1 + ' L' + (tx - 10) + ',' + (y1 + 10) + ' L' + (tx - 6) + ',' + y1 : '') +
+    ' H' + (x0 + r) + ' Q' + x0 + ',' + y1 + ' ' + x0 + ',' + (y1 - r) + ' V' + (y0 + r) + ' Q' + x0 + ',' + y0 + ' ' + (x0 + r) + ',' + y0 + 'Z';
+  Z.el('path', { d: dpath, fill: 'url(#zrbub)', stroke: accent, 'stroke-width': 1.2, 'stroke-opacity': .8 });
+  Z.el('circle', { cx: x0 + 14, cy: y0 + 14, r: 5, fill: accent, opacity: .9 });
+  for (var l = 0; l < lines; l++) {
+    var lw = (w - 46) * (l === lines - 1 ? .55 + Z.rnd() * .2 : .85 + Z.rnd() * .15);
+    Z.el('rect', { x: x0 + 26, y: y0 + 10 + l * 9, width: lw.toFixed(1), height: 3.5, rx: 1.75, fill: 'rgba(200,220,255,' + (l === 0 ? '.55' : '.25') + ')' });
+  }
+}
+var plain = [
+  [-48, 0, 112, 36, 1, C.signal, 3],
+  [20, 0, 96, 30, -1, C.cyan, 2],
+  [150, 0, 100, 30, -1, C.indigo, 2],
+  [258, 0, 92, 28, 1, C.signal, 2]
+];
+// position bubbles on the spiral
+var tvals = [0, 0.13, 0.49, 0.77];
+plain.forEach(function (b, n) { var p = onSpiral(tvals[n]); bubble(p[0], p[1], b[2], b[3], b[4], b[5], b[6]); });
+
+// reply-thread fan off the second bubble
+var pa = onSpiral(0.13);
+for (var r = 0; r < 3; r++) {
+  var rx = pa[0] + 70 + r * 10, ry = pa[1] + 26 + r * 18;
+  Z.el('path', { d: 'M' + (pa[0] + 30) + ',' + (pa[1] + 15) + ' Q' + (pa[0] + 34) + ',' + ry + ' ' + (rx - 18) + ',' + ry, fill: 'none', stroke: 'rgba(100,210,255,.4)', 'stroke-width': 1 });
+  Z.el('rect', { x: rx - 18, y: ry - 6, width: 46 - r * 6, height: 12, rx: 6, fill: 'rgba(41,151,255,.18)', stroke: 'rgba(100,210,255,.5)', 'stroke-width': .8 });
+}
+
+// labelled bubbles: huddle, pinned, smoke OK
+var ph = onSpiral(0.33);
+Z.el('circle', { cx: ph[0], cy: ph[1], r: 34, fill: C.violet, opacity: .15, filter: 'url(#zrsf)' });
+[0, 1, 2].forEach(function (n) { Z.el('circle', { cx: ph[0] - 16 + n * 16, cy: ph[1] - 24, r: 7, fill: '#0b1424', stroke: C.violet, 'stroke-width': 1.4 }); });
+Z.label(ph[0], ph[1] + 4, '<b class="vi">huddle</b><span>WebRTC</span>', 'box');
+
+var pp = onSpiral(0.63);
+Z.label(pp[0], pp[1], '<b class="warn">&#9733; pinned</b><span>runbook &middot; wave 1</span>', 'box');
+
+var ps = onSpiral(0.98);
+Z.el('circle', { cx: ps[0], cy: ps[1], r: 30, fill: C.green, opacity: .14, filter: 'url(#zrsf)' });
+Z.label(ps[0], ps[1], '<b class="ok">&#10003; Smoke OK</b><span>#cutover</span>', 'box');
+
+// SSE fan-out: sparks along the spiral
+var L = sp.getTotalLength();
+for (var k = 0; k < 9; k++) { var q = sp.getPointAtLength(L * (0.06 + k * 0.105)); Z.el('circle', { cx: q.x, cy: q.y, r: 2.4, fill: '#fff', filter: 'url(#zrgl)', opacity: .9 }); }
+
+Z.label(560, 52, 'SSE &middot; Postgres NOTIFY', 'chip');
+Z.label(cx, 574, '<b>threads &middot; huddles &middot; runbooks</b><span>Mattermost as optional tape</span>');
+})();
+</script>
 </body>
 </html>
