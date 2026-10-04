@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/zoreon-readme-hero.jpg" alt="Zoreon — ops chat for cutover" width="920" />
+  <img src="docs/social/zoreon-hero-dark.jpg" alt="Zoreon — ops chat for cutover" width="920" />
 </p>
 
 <p align="center">
