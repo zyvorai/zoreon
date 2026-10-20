@@ -3,6 +3,7 @@
  * Local in-process hub + optional Postgres LISTEN/NOTIFY for multi-replica.
  */
 import { dbSource } from "@/lib/db";
+import { toNotifyPayload } from "./notify-payload";
 
 export type ZoreonEvent =
   | { type: "typing"; channelId: string; userId: string; userName: string; at: number }
@@ -101,7 +102,8 @@ export function broadcastRealtime(ev: ZoreonEvent, exceptId?: string) {
       try {
         const { getSql } = await import("@/lib/db");
         const sql = await getSql();
-        const payload = JSON.stringify(ev).slice(0, 7900);
+        const payload = toNotifyPayload(ev);
+        if (!payload) return;
         await sql.query(`select pg_notify($1, $2)`, [CHANNEL, payload]);
       } catch {
         /* single-node ok */

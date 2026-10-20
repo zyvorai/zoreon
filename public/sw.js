@@ -25,7 +25,7 @@ self.addEventListener("fetch", (event) => {
       })
       .catch(async () => {
         const cached = await caches.match(req);
-        return cached || caches.match("/") || Response.error();
+        return cached || (await caches.match("/")) || Response.error();
       }),
   );
 });

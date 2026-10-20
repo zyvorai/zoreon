@@ -95,7 +95,7 @@ values ('admin@example.com')
 on conflict (email) do nothing;
 
 insert into agora_invites (token, created_by)
-values (encode(gen_random_bytes(18), 'base64'), 'bootstrap')
+values (replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', ''), 'bootstrap')
 on conflict (token) do nothing;
 ```
 
