@@ -1,11 +1,11 @@
 import webpush from "web-push";
 import { getSql } from "@/lib/db";
+import { isSubscriptionGone, resolveVapidSubject } from "./push-policy";
 
 export function vapidConfigured(): boolean {
   return Boolean(
     process.env.VAPID_PUBLIC_KEY?.trim() &&
-      process.env.VAPID_PRIVATE_KEY?.trim() &&
-      process.env.VAPID_SUBJECT?.trim(),
+      process.env.VAPID_PRIVATE_KEY?.trim(),
   );
 }
 
@@ -15,7 +15,7 @@ export async function sendPushToEmail(
 ): Promise<void> {
   if (!vapidConfigured()) return;
   webpush.setVapidDetails(
-    process.env.VAPID_SUBJECT!.trim(),
+    resolveVapidSubject(process.env),
     process.env.VAPID_PUBLIC_KEY!.trim(),
     process.env.VAPID_PRIVATE_KEY!.trim(),
   );
@@ -34,7 +34,8 @@ export async function sendPushToEmail(
         },
         body,
       );
-    } catch {
+    } catch (err) {
+      if (!isSubscriptionGone(err)) continue;
       await sql`delete from agora_push_subscriptions where endpoint = ${row.endpoint}`;
     }
   }

@@ -51,6 +51,7 @@ Compose `.env` or `ZOREON_SMTP_ENV` for `deploy-remote.sh`. Only `SMTP_*` keys a
 | --- | --- |
 | `VAPID_PUBLIC_KEY` | Web Push public key |
 | `VAPID_PRIVATE_KEY` | Web Push private key |
+| `VAPID_SUBJECT` | Optional. `mailto:` or `https:` contact for push services (defaults to `BETTER_AUTH_URL` if https, else a placeholder) |
 
 Service worker registers regardless; push subscriptions no-op without VAPID.
 
