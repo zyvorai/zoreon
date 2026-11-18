@@ -28,6 +28,8 @@
 
 </div>
 
+[Client overview (PDF)](docs/Zoreon-Client-Overview.pdf)
+
 ---
 
 ## Why Zoreon
