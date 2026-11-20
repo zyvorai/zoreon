@@ -87,10 +87,10 @@ function TrustBand() {
         <Reveal className={styles.trustGrid}>
           <div>
             <Heading as="h3" className={styles.sectionHeading}>
-              Self-hosted, MIT licensed
+              Self-hosted, source-available
             </Heading>
             <p>
-              MIT license — your network, your secrets. CI runs unit tests,
+              Zyvor Production License v1.0 (free for non-production use) — your network, your secrets. CI runs unit tests,
               HTTP smoke tests, and Playwright end-to-end tests (with a
               Postgres service) on every push and PR to main.
             </p>
@@ -102,8 +102,8 @@ function TrustBand() {
               alt="CI status"
             />
             <img
-              src="https://img.shields.io/badge/License-MIT-0f1115.svg"
-              alt="MIT license"
+              src="https://img.shields.io/badge/License-Zyvor_Production_1.0-0f1115.svg"
+              alt="Zyvor Production License 1.0"
             />
           </div>
         </Reveal>

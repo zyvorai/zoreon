@@ -3,7 +3,7 @@
 # Zoreon
 
 <a href="https://github.com/zyvorai/zoreon/actions/workflows/ci.yml"><img src="https://github.com/zyvorai/zoreon/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-<a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-0f1115?labelColor=1c1c1e" alt="MIT" /></a>
+<a href="LICENSE"><img src="https://img.shields.io/badge/License-Zyvor_Production_1.0-0f1115?labelColor=1c1c1e" alt="Zyvor Production License 1.0" /></a>
 <a href="package.json"><img src="https://img.shields.io/badge/TypeScript-TanStack%20Start-3178c6?logo=typescript&logoColor=white&labelColor=1c1c1e" alt="TypeScript" /></a>
 <a href="https://github.com/zyvorai/zoreon"><img src="https://img.shields.io/badge/GitHub-zyvorai%2Fzoreon-1c1c1e?logo=github" alt="GitHub" /></a>
 <a href="docs/CUSTOMER.md"><img src="https://img.shields.io/badge/Deploy-Compose%20%7C%20Helm-ff5a15?labelColor=1c1c1e" alt="Deploy" /></a>
@@ -233,7 +233,7 @@ Zoreon is at version **0.1.0** (`package.json`, and the image tag in the Helm ex
 
 ## License
 
-Zoreon is **free and open source** under the [MIT License](LICENSE) · [Zyvor AI Labs](https://zyvor.dev).
+Zoreon is source-available under the [Zyvor Production License v1.0](LICENSE) (SPDX `LicenseRef-Zyvor-Production-1.0`). Non-production use is free; production use requires a commercial license from Zyvor AI Labs (sales@zyvor.dev, [zyvor.dev/buy](https://zyvor.dev/buy)) · [Zyvor AI Labs](https://zyvor.dev).
 
 **Zyvor Enterprise** adds what production teams ask for: supported releases, deployment and upgrade guidance, priority incident triage, a named technical contact and 24x7 critical intake. Plans and terms: [docs/SUBSCRIPTION-MODEL.md](docs/SUBSCRIPTION-MODEL.md) · [Pricing](https://zyvor.dev/pricing?utm_source=github&utm_medium=zoreon&utm_campaign=readme_license) · [sales@zyvor.dev](mailto:sales@zyvor.dev).
 

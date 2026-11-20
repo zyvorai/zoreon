@@ -93,7 +93,7 @@ const config: Config = {
           items: [
             {label: 'GitHub', href: 'https://github.com/zyvorai/zoreon'},
             {
-              label: 'License (MIT)',
+              label: 'License (Zyvor Production 1.0)',
               href: 'https://github.com/zyvorai/zoreon/blob/main/LICENSE',
             },
           ],
@@ -103,7 +103,7 @@ const config: Config = {
           items: [{label: 'zyvor.dev', href: 'https://zyvor.dev'}],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Zyvor AI Labs. Zoreon is MIT licensed.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Zyvor AI Labs. Zoreon is under the Zyvor Production License v1.0.`,
     },
     prism: {
       theme: prismThemes.github,
