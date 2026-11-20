@@ -4,12 +4,11 @@ Zoreon is available under an annual **enterprise subscription** for production u
 
 | Plan | What you get | Coverage |
 |------|--------------|----------|
-| Community | Evaluation and non-production use, where the licence allows it | Community resources |
 | Professional | Entry edition, updates and upgrades | Business hours, next-business-day critical response |
 | Enterprise | Advanced edition, updates and upgrades | Priority business hours, four-business-hour critical response |
 | Premium | Contracted enterprise scope and critical escalation | 24x7 critical intake, one-hour initial response target |
 
-Rates: USD 3 per user per month (INR 297 per user per month incl. 18% GST in India), minimum 25 users, an annual minimum of USD 900 (INR 89,208 incl. GST). Non-production use stays free under the Zyvor Production License v1.0.
+Rates: USD 3 per user per month (INR 297 per user per month incl. 18% GST in India), minimum 25 users, an annual minimum of USD 900 (INR 89,208 incl. GST).
 
 Prices: INR incl. 18% GST in India; US dollars excl. tax elsewhere (VAT, GST or sales tax added where applicable). Pay online by UPI, card or netbanking where a buy page exists; international cards work (charged in rupees); or request a US-dollar invoice by bank transfer. Custom pricing: contact [sales@zyvor.dev](mailto:sales@zyvor.dev). Buy / get a quote: <https://zyvor.dev/buy>.
 
