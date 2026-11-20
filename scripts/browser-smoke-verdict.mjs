@@ -1,3 +1,6 @@
+// Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 import { createHash } from "node:crypto";
 export function normalizeBodyText(text) {
   return String(text ?? "")

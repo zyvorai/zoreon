@@ -1,3 +1,6 @@
+// Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 import { createFileRoute } from "@tanstack/react-router";
 import { randomBytes } from "node:crypto";
 import type { ZoreonEvent } from "@/lib/zoreon/realtime.server";

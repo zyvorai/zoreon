@@ -1,3 +1,6 @@
+// Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 /**
  * Full-mesh WebRTC rooms: one RTCPeerConnection per remote peer, signaled
  * through /api/rtc (see signaling.server.ts), game data flowing directly

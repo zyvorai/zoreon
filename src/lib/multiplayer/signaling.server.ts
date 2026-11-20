@@ -1,3 +1,6 @@
+// Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 /**
  * WebRTC signaling over the app database (Neon deployed, PGLite in preview).
  * Only rendezvous traffic passes through here — roster + SDP/ICE relay while a

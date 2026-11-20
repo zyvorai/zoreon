@@ -1,3 +1,6 @@
+// Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 export const CONNECTOR_TOKEN_HEADER = "x-connector-access-token";
 
 export const CONNECTOR_TOKEN_PENDING_CODE = "connector_token_pending";

@@ -1,3 +1,6 @@
+// Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 import { createFileRoute } from "@tanstack/react-router";
 import { Desktop } from "@/components/desktop/desktop";
 import { RedirectToSignIn, SignedIn, SignedOut } from "@/lib/auth/gates";

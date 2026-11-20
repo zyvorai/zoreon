@@ -1,4 +1,7 @@
 #!/bin/sh
+# Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+# SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 # Apply Postgres migrations when DATABASE_URL is set, then start Nitro.
 set -eu
 if [ -n "${DATABASE_URL:-}" ]; then

@@ -1,3 +1,6 @@
+// Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 // @ts-check
 /**
  * The sign-out sequence used by `src/lib/auth/client.ts`, kept here as a pure

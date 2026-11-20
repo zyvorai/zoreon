@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+// Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 /**
  * Brand-asset gate shared by browser-smoke.mjs (and unit-testable without a
  * browser): a canvas app is almost always a game / visually rich app, and

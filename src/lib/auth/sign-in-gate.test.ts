@@ -1,3 +1,6 @@
+// Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { resolveSignInGateState } from "./sign-in-gate.ts";

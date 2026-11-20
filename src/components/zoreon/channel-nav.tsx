@@ -1,3 +1,6 @@
+// Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Bookmark, Bell, Hash, Inbox, Plus, Radio, Star, Users, X } from "lucide-react";
 import { cn } from "@/lib/utils";

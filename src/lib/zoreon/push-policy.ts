@@ -1,3 +1,6 @@
+// Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 /** Push service says the subscription is gone for good (RFC 8030: 404 / 410). */
 export function isSubscriptionGone(err: unknown): boolean {
   const code = (err as { statusCode?: unknown } | null)?.statusCode;

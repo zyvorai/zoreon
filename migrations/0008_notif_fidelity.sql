@@ -1,3 +1,6 @@
+-- Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+-- SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 -- Channel mute / notify levels, keyword alerts, quiet hours.
 
 alter table agora_notif_prefs

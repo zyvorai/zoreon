@@ -1,3 +1,6 @@
+// Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 /**
  * Single source of truth for platform head chrome (PWA, extensions.js, OG),
  * shared by the Vite plugin and Nitro middleware. Plain ESM so `node --test`

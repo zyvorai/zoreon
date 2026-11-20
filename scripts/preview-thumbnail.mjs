@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+// Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 // Capture a 1280x800 preview PNG of the dev server (argv[2] -> argv[3]).
 // Contract with SandboxInternal.CapturePreviewThumbnail: exit 0 only after the
 // PNG is written; the service treats any non-zero exit as a gated skip and does

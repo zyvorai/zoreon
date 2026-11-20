@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+# SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 """Postprocess Grok imagine_image_to_video clips into dense 2D sprites.
 
 Pipeline steps (deterministic only — no creative generation):

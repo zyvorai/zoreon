@@ -1,3 +1,6 @@
+// Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 /**
  * Parse Slack-like search modifiers into Mattermost/SQL-friendly pieces.
  * Supported: from:handle, in:#channel|name, has:link|file|reaction, before:YYYY-MM-DD, after:YYYY-MM-DD

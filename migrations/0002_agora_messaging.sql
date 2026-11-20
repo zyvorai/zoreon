@@ -1,3 +1,6 @@
+-- Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+-- SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 -- Agora messaging workspace (Mattermost-class ops chat).
 -- Shared team tables — auth is off; rows are world-readable/writable for the demo.
 

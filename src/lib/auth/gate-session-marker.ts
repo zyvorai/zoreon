@@ -1,3 +1,6 @@
+// Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 /**
  * Client-readable marker for gate-materialized sessions ("Sign in with Grok"
  * zero-click sessions minted by `gate-session.server.ts`). Signing out of a

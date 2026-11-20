@@ -1,3 +1,6 @@
+// Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 import webpush from "web-push";
 import { getSql } from "@/lib/db";
 import { isSubscriptionGone, resolveVapidSubject } from "./push-policy";

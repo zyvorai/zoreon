@@ -1,3 +1,6 @@
+// Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 /**
  * Dev/preview (Vite) half of the platform PWA chrome: serves the ?install=1
  * tutorial and the per-app manifest, and injects missing PWA head tags into

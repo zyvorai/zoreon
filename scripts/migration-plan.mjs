@@ -1,3 +1,6 @@
+// Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 // @ts-check
 /**
  * Migration bookkeeping shared by the two appliers — `scripts/migrate.mjs`

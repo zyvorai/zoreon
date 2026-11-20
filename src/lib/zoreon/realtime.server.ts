@@ -1,3 +1,6 @@
+// Copyright 2026 Zyvor AI Labs · https://zyvor.dev
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+
 /**
  * Realtime fan-out for Zoreon clients (SSE).
  * Local in-process hub + optional Postgres LISTEN/NOTIFY for multi-replica.
