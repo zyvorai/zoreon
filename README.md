@@ -28,8 +28,6 @@
 
 </div>
 
-[Client overview (PDF)](docs/Zoreon-Client-Overview.pdf)
-
 ---
 
 ## Why Zoreon
@@ -67,23 +65,6 @@ Cutover programs need a war room that lives next to the tape — not another Saa
 | Admin | Workspace admins, retention, audit log |
 | Invites | Multi-use link, SMTP send, or mailto |
 | PWA | Service worker, manifest, offline draft outbox; Web Push with `VAPID_*` |
-
----
-
-## Zoreon vs Slack
-
-![Zoreon vs Slack: cutover chat on your own estate](docs/ux/readme-vs.jpg)
-
-| | **Zoreon** | **Slack** (hosted team chat) |
-|---|---|---|
-| Where it runs | Your infrastructure: Docker Compose, Helm, or podman + systemd | Slack's cloud service |
-| Where messages live | Your Postgres, optionally with your Mattermost as durable tape | Slack's service |
-| Sign-in | Better Auth (email/password, Google, X) with invite-gated join | Slack accounts and workspace invitations |
-| Channels, threads, DMs | Yes | Yes |
-| Audio/video | In-channel huddles over WebRTC | Huddles and calls |
-| Cutover workflow | War-room waves, stars, pins, bookmarks, remind-in-1h, workspace audit log | General-purpose; cutover workflow comes from apps and conventions |
-| Integrations | Mattermost tape, SMTP invites, Web Push | Large app and integration ecosystem |
-| **Choose Slack when** | | You want hosted, company-wide chat with its app ecosystem and don't need the war room on your own estate |
 
 ---
 
