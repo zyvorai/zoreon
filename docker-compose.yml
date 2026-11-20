@@ -1,0 +1,49 @@
+# Zoreon greenfield stack — Postgres + app
+# Usage: cp .env.example .env && docker compose up -d --build
+# Docs: docs/CUSTOMER.md
+
+services:
+  db:
+    image: docker.io/library/postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: zoreon
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: zoreon
+    volumes:
+      - zoreon-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zoreon -d zoreon"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    image: zoreon:compose
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${ZOREON_PUBLISH_PORT:-8080}:8080"
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "8080"
+      DATABASE_URL: postgres://zoreon:${POSTGRES_PASSWORD}@db:5432/zoreon
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?set BETTER_AUTH_SECRET in .env}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:8080}
+      ZOREON_BOOTSTRAP_ADMIN_EMAIL: ${ZOREON_BOOTSTRAP_ADMIN_EMAIL:-}
+      MATTERMOST_URL: ${MATTERMOST_URL:-}
+      MATTERMOST_TOKEN: ${MATTERMOST_TOKEN:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_FROM: ${SMTP_FROM:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_USE_TLS: ${SMTP_USE_TLS:-true}
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+
+volumes:
+  zoreon-pgdata:

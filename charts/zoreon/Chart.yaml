@@ -1,0 +1,16 @@
+apiVersion: v2
+name: zoreon
+description: Zoreon — Zyvor ops chat (Mattermost tape optional)
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - zoreon
+  - chat
+  - mattermost
+home: https://github.com/zyvorai/zoreon
+sources:
+  - https://github.com/zyvorai/zoreon
+maintainers:
+  - name: Zyvor
+    url: https://zyvor.dev

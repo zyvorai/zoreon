@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "zoreon.fullname" . }}
+  labels:
+    {{- include "zoreon.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "zoreon.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: app
+  template:
+    metadata:
+      labels:
+        {{- include "zoreon.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: app
+    spec:
+      serviceAccountName: {{ include "zoreon.serviceAccountName" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: zoreon
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          env:
+            - name: HOST
+              value: {{ .Values.env.HOST | quote }}
+            - name: PORT
+              value: {{ .Values.env.PORT | quote }}
+            - name: BETTER_AUTH_URL
+              value: {{ .Values.env.BETTER_AUTH_URL | quote }}
+            - name: ZOREON_BOOTSTRAP_ADMIN_EMAIL
+              value: {{ .Values.env.ZOREON_BOOTSTRAP_ADMIN_EMAIL | quote }}
+            - name: MATTERMOST_URL
+              value: {{ .Values.env.MATTERMOST_URL | quote }}
+            - name: SMTP_HOST
+              value: {{ .Values.env.SMTP_HOST | quote }}
+            - name: SMTP_PORT
+              value: {{ .Values.env.SMTP_PORT | quote }}
+            - name: SMTP_FROM
+              value: {{ .Values.env.SMTP_FROM | quote }}
+            - name: SMTP_USE_TLS
+              value: {{ .Values.env.SMTP_USE_TLS | quote }}
+            - name: BETTER_AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "zoreon.secretName" . }}
+                  key: BETTER_AUTH_SECRET
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "zoreon.secretName" . }}
+                  key: DATABASE_URL
+            - name: MATTERMOST_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "zoreon.secretName" . }}
+                  key: MATTERMOST_TOKEN
+                  optional: true
+            - name: SMTP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "zoreon.secretName" . }}
+                  key: SMTP_USER
+                  optional: true
+            - name: SMTP_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "zoreon.secretName" . }}
+                  key: SMTP_PASS
+                  optional: true
+            - name: VAPID_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "zoreon.secretName" . }}
+                  key: VAPID_PUBLIC_KEY
+                  optional: true
+            - name: VAPID_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "zoreon.secretName" . }}
+                  key: VAPID_PRIVATE_KEY
+                  optional: true
+          livenessProbe:
+            httpGet:
+              path: /login
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /login
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
