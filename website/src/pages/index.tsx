@@ -93,7 +93,7 @@ function TrustBand() {
               Self-hosted, source-available
             </Heading>
             <p>
-              Zyvor Production License v1.0 (commercial license required) — your network, your secrets. CI runs unit tests,
+              Zyvor Production License v1.0 (free for non-production use; production use requires a commercial license) — your network, your secrets. CI runs unit tests,
               HTTP smoke tests, and Playwright end-to-end tests (with a
               Postgres service) on every push and PR to main.
             </p>
