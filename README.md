@@ -216,6 +216,8 @@ Zoreon is at version **0.1.0** (`package.json`, and the image tag in the Helm ex
 
 Zoreon is source-available under the [Zyvor Production License v1.0](LICENSE) (SPDX `LicenseRef-Zyvor-Production-1.0`). Evaluation is free for 30 days per organization; production use requires a commercial license from Zyvor AI Labs (sales@zyvor.dev, [zyvor.dev/buy](https://zyvor.dev/buy)) · [Zyvor AI Labs](https://zyvor.dev).
 
+**Price:** US$3 per user per month excl. tax, with a minimum order of US$900. Buy: [zyvor.dev/buy](https://zyvor.dev/buy). Orders of USD 5,000 or more and quotes are invoiced in USD through Skydo.
+
 **Zyvor Enterprise** adds what production teams ask for: supported releases, deployment and upgrade guidance, priority incident triage, a named technical contact and 24x7 critical intake. Plans and terms: [docs/SUBSCRIPTION-MODEL.md](docs/SUBSCRIPTION-MODEL.md) · [Pricing](https://zyvor.dev/pricing?utm_source=github&utm_medium=zoreon&utm_campaign=readme_license) · [sales@zyvor.dev](mailto:sales@zyvor.dev).
 
 ---
