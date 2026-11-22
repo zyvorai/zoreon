@@ -1,5 +1,5 @@
 // Copyright 2026 Zyvor AI Labs · https://zyvor.dev
-// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-2.0
 
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
@@ -106,7 +106,7 @@ const config: Config = {
           items: [{label: 'zyvor.dev', href: 'https://zyvor.dev'}],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Zyvor AI Labs. Zoreon is under the Zyvor Production License v1.0.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Zyvor AI Labs. Zoreon is under the Zyvor Production Licence v2.0.`,
     },
     prism: {
       theme: prismThemes.github,

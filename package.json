@@ -11,7 +11,7 @@
   "bugs": {
     "url": "https://github.com/zyvorai/zoreon/issues"
   },
-  "license": "LicenseRef-Zyvor-Production-1.0",
+  "license": "LicenseRef-Zyvor-Production-2.0",
   "sideEffects": false,
   "type": "module",
   "overrides": {

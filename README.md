@@ -3,7 +3,7 @@
 # Zoreon
 
 <a href="https://github.com/zyvorai/zoreon/actions/workflows/ci.yml"><img src="https://github.com/zyvorai/zoreon/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-<a href="LICENSE"><img src="https://img.shields.io/badge/License-Zyvor_Production_1.0-0f1115?labelColor=1c1c1e" alt="Zyvor Production License 1.0" /></a>
+<a href="LICENSE"><img src="https://img.shields.io/badge/License-Zyvor_Production_1.0-0f1115?labelColor=1c1c1e" alt="Zyvor Production Licence v2.0" /></a>
 <a href="package.json"><img src="https://img.shields.io/badge/TypeScript-TanStack%20Start-3178c6?logo=typescript&logoColor=white&labelColor=1c1c1e" alt="TypeScript" /></a>
 <a href="https://github.com/zyvorai/zoreon"><img src="https://img.shields.io/badge/GitHub-zyvorai%2Fzoreon-1c1c1e?logo=github" alt="GitHub" /></a>
 <a href="docs/CUSTOMER.md"><img src="https://img.shields.io/badge/Deploy-Compose%20%7C%20Helm-ff5a15?labelColor=1c1c1e" alt="Deploy" /></a>
@@ -214,7 +214,7 @@ Zoreon is at version **0.1.0** (`package.json`, and the image tag in the Helm ex
 
 ## License
 
-Zoreon is source-available under the [Zyvor Production License v1.0](LICENSE) (SPDX `LicenseRef-Zyvor-Production-1.0`). Evaluation is free for 30 days per organization; production use requires a commercial license from Zyvor AI Labs (sales@zyvor.dev, [zyvor.dev/buy](https://zyvor.dev/buy)) · [Zyvor AI Labs](https://zyvor.dev).
+Zoreon is source-available under the [Zyvor Production Licence v2.0](LICENSE) (SPDX `LicenseRef-Zyvor-Production-2.0`). A 30-day trial is available on request from sales@zyvor.dev (a paid evaluation Order at no charge); production and any other use needs a paid Order ([zyvor.dev/buy](https://zyvor.dev/buy)) · [Zyvor AI Labs](https://zyvor.dev).
 
 **Price:** US$3 per user per month excl. tax, with a minimum order of US$900. Buy: [zyvor.dev/buy](https://zyvor.dev/buy). Orders of USD 5,000 or more and quotes are invoiced in USD through Skydo.
 
