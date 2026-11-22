@@ -1,5 +1,5 @@
 // Copyright 2026 Zyvor AI Labs · https://zyvor.dev
-// SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
+// SPDX-License-Identifier: LicenseRef-Zyvor-Production-2.0
 
 import type {ReactNode} from 'react';
 import clsx from 'clsx';
@@ -93,7 +93,7 @@ function TrustBand() {
               Self-hosted, source-available
             </Heading>
             <p>
-              Zyvor Production License v1.0 (free for non-production use; production use requires a commercial license) — your network, your secrets. CI runs unit tests,
+              Zyvor Production Licence v2.0 (a 30-day trial is available on request from sales@zyvor.dev; production and any other use needs a paid Order) — your network, your secrets. CI runs unit tests,
               HTTP smoke tests, and Playwright end-to-end tests (with a
               Postgres service) on every push and PR to main.
             </p>
@@ -106,7 +106,7 @@ function TrustBand() {
             />
             <img
               src="https://img.shields.io/badge/License-Zyvor_Production_1.0-0f1115.svg"
-              alt="Zyvor Production License 1.0"
+              alt="Zyvor Production Licence v2.0"
             />
           </div>
         </Reveal>
