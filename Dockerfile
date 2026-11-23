@@ -1,7 +1,7 @@
 # Zoreon — self-hosted Node (podman / systemd lab)
 # Build: NITRO_PRESET=node-server so Nitro emits .output/server (not Vercel).
 
-FROM node:22-bookworm-slim AS build
+FROM node:24-bookworm-slim AS build
 WORKDIR /app
 
 COPY package.json package-lock.json ./
@@ -17,7 +17,7 @@ RUN npm run build \
         node_modules/@electric-sql/pglite/dist/pglite.wasm \
         .output/server/_libs/
 
-FROM node:22-bookworm-slim AS runtime
+FROM node:24-bookworm-slim AS runtime
 WORKDIR /app
 
 ENV NODE_ENV=production

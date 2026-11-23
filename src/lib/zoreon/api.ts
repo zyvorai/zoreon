@@ -101,6 +101,8 @@ export const postMessage = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }): Promise<Message> => {
     const session = await requireSession();
+    const { guardMessageWrite } = await import("./limits.server");
+    guardMessageWrite(session, data.body);
     const { isMattermostMessagingEnabled, insertMessageMattermost } = await import(
       "./mattermost-workspace.server"
     );
@@ -323,7 +325,7 @@ export const searchMessages = createServerFn({ method: "POST" })
       data,
     }): Promise<{ id: string; channelId: string; body: string; createdAt: number; authorId: string }[]> => {
       await requireSession();
-      const { parseSearchQuery } = await import("./search-parse");
+      const { parseSearchQuery, escapeLike } = await import("./search-parse");
       const parsed = parseSearchQuery(data.terms);
       const { isMattermostMessagingEnabled, searchPostsMattermost } = await import(
         "./mattermost-workspace.server"
@@ -335,7 +337,7 @@ export const searchMessages = createServerFn({ method: "POST" })
       const { getSql } = await import("@/lib/db");
       await ensureWorkspaceSeeded();
       const sql = await getSql();
-      const q = `%${(parsed.freeText || data.terms).trim()}%`;
+      const q = `%${escapeLike((parsed.freeText || data.terms).trim())}%`;
       let rows = await sql<{
         id: string;
         channel_id: string;
@@ -398,6 +400,8 @@ export const editMessage = createServerFn({ method: "POST" })
   .validator((input: { messageId: string; body: string }) => input)
   .handler(async ({ data }): Promise<Message> => {
     const session = await requireSession();
+    const { guardMessageWrite } = await import("./limits.server");
+    guardMessageWrite(session, data.body);
     const { isMattermostMessagingEnabled, updateMessageMattermost } = await import(
       "./mattermost-workspace.server"
     );
@@ -409,6 +413,25 @@ export const editMessage = createServerFn({ method: "POST" })
     const authorId = await ensureProfileForSession(session);
     return updateMessageDb({ messageId: data.messageId, body: data.body, authorId });
   });
+
+export const exportTimeline = createServerFn({ method: "POST" })
+  .validator(
+    (input: { channelId: string; format?: "markdown" | "json"; since?: number; until?: number }) =>
+      input,
+  )
+  .handler(
+    async ({
+      data,
+    }): Promise<{ filename: string; mime: string; content: string; entries: number; truncated: boolean }> => {
+      const session = await requireSession();
+      const { guardExport } = await import("./limits.server");
+      guardExport(session);
+      const { parseExportRequest } = await import("./timeline-request");
+      const { runTimelineExport } = await import("./timeline.server");
+      const req = parseExportRequest(data);
+      return runTimelineExport(req, session);
+    },
+  );
 
 export const deleteMessage = createServerFn({ method: "POST" })
   .validator((input: { messageId: string }) => input)

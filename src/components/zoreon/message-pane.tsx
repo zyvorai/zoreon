@@ -22,7 +22,7 @@ import { getInviteLink } from "@/lib/zoreon/api";
 import { MessageBody } from "@/components/zoreon/message-body";
 import { ProfilePopover } from "@/components/zoreon/profile-popover";
 import { HuddleBar } from "@/components/zoreon/huddle-bar";
-import { setChannelPref } from "@/lib/zoreon/api";
+import { exportTimeline, setChannelPref } from "@/lib/zoreon/api";
 
 const QUICK_REACTIONS = [
   { id: "ack", label: "👍" },
@@ -162,6 +162,27 @@ export function MessagePane() {
             }}
           >
             Mentions
+          </button>
+          <button
+            type="button"
+            className="h-7 rounded-sm border border-border px-2 text-xs hover:bg-fg/10"
+            title="Download a redacted Markdown timeline of this channel"
+            onClick={() => {
+              void exportTimeline({ data: { channelId: channel.id, format: "markdown" } })
+                .then((r) => {
+                  const url = URL.createObjectURL(new Blob([r.content], { type: r.mime }));
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = r.filename;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                })
+                .catch((e: unknown) => {
+                  window.alert(e instanceof Error ? e.message : "Export failed");
+                });
+            }}
+          >
+            Export
           </button>
           <HuddleBar channelId={channel.id} />
         </div>
