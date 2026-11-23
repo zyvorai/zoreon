@@ -124,9 +124,6 @@ export async function runRetentionPurge(): Promise<{ deleted: number }> {
   if (days == null || days <= 0) return { deleted: 0 };
   const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
   const sql = await getSql();
-  let deleted = 0;
-  const tables: { sql: string; ts: "created_at" | "remind_at" }[] = [];
-  void tables;
   const r1 = await sql`delete from agora_bookmarks where created_at < to_timestamp(${cutoff / 1000})`;
   const r2 = await sql`delete from agora_reminders where created_at < to_timestamp(${cutoff / 1000})`;
   const r3 = await sql`delete from agora_post_overlays where created_at < to_timestamp(${cutoff / 1000})`;
@@ -138,6 +135,5 @@ export async function runRetentionPurge(): Promise<{ deleted: number }> {
   void r1;
   void r2;
   void r3;
-  deleted = 1;
-  return { deleted };
+  return { deleted: 1 };
 }
