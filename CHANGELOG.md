@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Added
+
+- Incident timeline export: `exportTimeline` server function and an Export button in the channel header. Markdown or JSON; secrets redacted; control/bidi characters stripped; Markdown/HTML escaped; capped at 5000 messages and 8000 characters per message. Each export writes a `timeline.export` row to the audit log. See `docs/TIMELINE.md`.
+- Message rate limiting and size guard on send/edit (`ZOREON_RATE_MESSAGES_PER_MIN`, `ZOREON_MAX_MESSAGE_CHARS`) and export limiting (`ZOREON_RATE_EXPORTS_PER_MIN`), with clear errors.
+- Unit tests for all of the above (hostile Markdown/HTML, huge payloads, malformed input, SQL-shaped input).
+
 ### Dependencies (major bumps)
 
 Root app (verified with lint, typecheck, unit tests and build on Node 22.23):
@@ -28,4 +34,5 @@ Website (docs site): react / react-dom 19.3.1; build and typecheck pass.
 
 ### Fixed
 
+- Message search: `%`, `_` and backslash typed by users are now escaped, so they match literally instead of acting as LIKE wildcards (values were always parameterised; no SQL injection).
 - Lint gate: pre-existing `no-empty` error in `client.server.ts`.

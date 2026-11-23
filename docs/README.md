@@ -25,6 +25,8 @@ Public documentation for **[Zoreon](https://github.com/zyvorai/zoreon)** — Zyv
 
 | Doc | Contents |
 | --- | --- |
+| [TIMELINE.md](TIMELINE.md) | Incident timeline export, redaction rules, rate limits |
+| [RESEARCH.md](RESEARCH.md) | ChatOps field survey and ranked ideas |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Planes, auth, messaging modes, realtime, huddles, naming |
 
 Root [README](../README.md) is the public overview (features, quick start, badges).

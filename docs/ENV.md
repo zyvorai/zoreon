@@ -23,6 +23,16 @@ Helm: `charts/zoreon/values.yaml` (`env` + `secret` / `existingSecret`).
 
 When the bootstrap email is set, migrate also ensures at least one active invite token exists.
 
+## Abuse limits (optional)
+
+| Variable | Purpose |
+| --- | --- |
+| `ZOREON_RATE_MESSAGES_PER_MIN` | Message sends + edits per user per minute (default `60`, `0` disables). Per app replica. |
+| `ZOREON_RATE_EXPORTS_PER_MIN` | Timeline exports per user per minute (default `6`, `0` disables) |
+| `ZOREON_MAX_MESSAGE_CHARS` | Max message length (default `16000`, `0` disables) |
+
+Over-limit calls fail with `Rate limit exceeded: at most N message writes per 60s. Retry in Ns.`
+
 ## Mattermost tape (optional)
 
 | Variable | Purpose |

@@ -468,6 +468,31 @@ export async function insertMessageMattermost(
   return mapped;
 }
 
+/** Latest posts of a channel (as the signed-in user when a token exists) plus author names. */
+export async function loadChannelForExportMattermost(
+  channelId: string,
+  session?: VerifiedUser | null,
+): Promise<{
+  channelName: string;
+  messages: Message[];
+  authors: Record<string, { name?: string; handle?: string }>;
+}> {
+  const { configForSession } = await import("./mm-session.server");
+  const resolved = await configForSession(session);
+  if (!resolved) throw new Error("Mattermost not configured");
+  const { config, mmUserId } = resolved;
+  const data = await mattermostChannelPosts(config, channelId);
+  const messages = data.order
+    .map((id) => data.posts[id])
+    .filter((p): p is MmPost => Boolean(p))
+    .map((p) => mapPost(p, mmUserId, config));
+  const ids = [...new Set(messages.map((m) => m.authorId))];
+  const users = await mattermostUsersByIds(config, ids).catch(() => [] as MmUser[]);
+  const authors: Record<string, { name?: string; handle?: string }> = {};
+  for (const u of users) authors[u.id] = { name: displayName(u), handle: u.username };
+  return { channelName: channelId, messages, authors };
+}
+
 export async function toggleReactionMattermost(
   input: {
     messageId: string;

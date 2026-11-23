@@ -16,6 +16,11 @@ export type ParsedSearch = {
   mmTerms: string;
 };
 
+/** Escape `%`, `_` and backslash so user text matches literally inside a LIKE/ILIKE pattern. */
+export function escapeLike(s: string): string {
+  return s.replace(/[\\%_]/g, "\\$&");
+}
+
 const MOD =
   /\b(from|in|has|before|after):([^\s]+)/gi;
 
