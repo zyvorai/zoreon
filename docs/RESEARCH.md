@@ -37,3 +37,9 @@ Method: only pages actually fetched are cited as read. Everything marked **[U]**
 6. **Retention/legal hold** (deferred). Zoreon has `retention_days` purge; a legal-hold flag that suspends purge for matching channels is the natural extension. Note: `runRetentionPurge` currently always reports `deleted: 1` and does not count rows (see CHANGELOG, not changed in this pass).
 7. **LLM ops assistant guardrails** (deferred). Only relevant if an assistant is added: treat chat text as untrusted data, no tool use without human approval, output schema validation (OWASP LLM01, read).
 8. **Search filter hardening** (noted). `searchMessages` binds `ILIKE` as a parameter (no SQL injection), but `%` and `_` typed by users act as wildcards; escaping them is a small follow-up.
+
+## Round 2 (web searches read this pass)
+
+Sources: incident.io blog/changelog (timeline = incident updates plus pinned messages, post-mortem drafted from timeline and decisions, suggested follow-ups), Mattermost docs (Playbooks status updates, retrospectives, `/playbook` slash commands, digest setting), Slack help (`/remind` forms, message reminders; recurrence by day only), Rootly docs (action items via slash command/emoji, catch-up brief from the Slack agent), FireHydrant docs (`add note`, `add action-item`, notes filterable on timeline). Vendor material; feature claims are marketing-leaning.
+
+Built from it: decision/follow-up/note markers and owners; incident review skeleton; catch-up digest; CSV export; natural-language reminder times. Not built: LLM summaries (untrusted-content risk, see above), recurring reminders (needs schema), slash command surface.

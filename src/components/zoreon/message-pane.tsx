@@ -42,7 +42,22 @@ const QUICK_REACTIONS = [
 ] as const;
 
 const COMPOSER_EMOJI = [
-  "👍", "👎", "❤️", "😂", "🎉", "🔥", "👀", "🤔", "🙏", "✅", "❌", "🚀", "😅", "😮", "👏", "💯",
+  "👍",
+  "👎",
+  "❤️",
+  "😂",
+  "🎉",
+  "🔥",
+  "👀",
+  "🤔",
+  "🙏",
+  "✅",
+  "❌",
+  "🚀",
+  "😅",
+  "😮",
+  "👏",
+  "💯",
 ] as const;
 
 export function MessagePane() {
@@ -57,7 +72,10 @@ export function MessagePane() {
   const jumpToMessage = useZoreon((s) => s.jumpToMessage);
   const channel = channels.find((c) => c.id === activeId);
   const roots = useMemo(
-    () => messages.filter((m) => m.channelId === activeId && !m.parentId).sort((a, b) => a.createdAt - b.createdAt),
+    () =>
+      messages
+        .filter((m) => m.channelId === activeId && !m.parentId)
+        .sort((a, b) => a.createdAt - b.createdAt),
     [messages, activeId],
   );
   const pinned = useMemo(
@@ -96,7 +114,11 @@ export function MessagePane() {
         >
           Channels
         </button>
-        {channel.kind === "war-room" ? <Radio className="size-4 text-accent" /> : <Hash className="size-4 text-fg-muted" />}
+        {channel.kind === "war-room" ? (
+          <Radio className="size-4 text-accent" />
+        ) : (
+          <Hash className="size-4 text-fg-muted" />
+        )}
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold">{channel.name}</p>
           {editingTopic ? (
@@ -104,7 +126,9 @@ export function MessagePane() {
               className="flex gap-1"
               onSubmit={(e) => {
                 e.preventDefault();
-                void updateChannelTopic(channel.id, topicDraft.trim()).then(() => setEditingTopic(false));
+                void updateChannelTopic(channel.id, topicDraft.trim()).then(() =>
+                  setEditingTopic(false),
+                );
               }}
             >
               <input
@@ -163,12 +187,20 @@ export function MessagePane() {
           >
             Mentions
           </button>
-          <button
-            type="button"
-            className="h-7 rounded-sm border border-border px-2 text-xs hover:bg-fg/10"
-            title="Download a redacted Markdown timeline of this channel"
-            onClick={() => {
-              void exportTimeline({ data: { channelId: channel.id, format: "markdown" } })
+          <select
+            aria-label="Export channel record"
+            className="h-7 rounded-sm border border-border bg-transparent px-1 text-xs hover:bg-fg/10"
+            title="Download a redacted record of this channel"
+            value=""
+            onChange={(ev) => {
+              const [format, hl] = ev.target.value.split(":") as [
+                "markdown" | "json" | "csv" | "retro" | "digest",
+                string | undefined,
+              ];
+              if (!format) return;
+              void exportTimeline({
+                data: { channelId: channel.id, format, highlightsOnly: hl === "hl" },
+              })
                 .then((r) => {
                   const url = URL.createObjectURL(new Blob([r.content], { type: r.mime }));
                   const a = document.createElement("a");
@@ -182,8 +214,14 @@ export function MessagePane() {
                 });
             }}
           >
-            Export
-          </button>
+            <option value="">Export</option>
+            <option value="markdown">Timeline (Markdown)</option>
+            <option value="markdown:hl">Decisions and follow-ups only</option>
+            <option value="digest">Catch-up digest (Markdown)</option>
+            <option value="retro">Incident review (Markdown)</option>
+            <option value="json">JSON with insights</option>
+            <option value="csv">CSV</option>
+          </select>
           <HuddleBar channelId={channel.id} />
         </div>
       </header>
@@ -211,7 +249,10 @@ export function MessagePane() {
           const author = users.find((u) => u.id === m.authorId);
           const prev = roots[i - 1];
           const grouped =
-            prev && prev.authorId === m.authorId && m.createdAt - prev.createdAt < 5 * 60 * 1000 && !m.system;
+            prev &&
+            prev.authorId === m.authorId &&
+            m.createdAt - prev.createdAt < 5 * 60 * 1000 &&
+            !m.system;
           return (
             <MessageRow
               key={m.id}
@@ -236,7 +277,13 @@ function FileChips({ files }: { files: MessageFile[] }) {
         const isImage = f.mimeType.startsWith("image/");
         if (isImage && f.url) {
           return (
-            <a key={f.id} href={f.url} target="_blank" rel="noreferrer" className="block overflow-hidden rounded-sm border border-border">
+            <a
+              key={f.id}
+              href={f.url}
+              target="_blank"
+              rel="noreferrer"
+              className="block overflow-hidden rounded-sm border border-border"
+            >
               <img src={f.url} alt={f.name} className="max-h-48 max-w-xs object-contain" />
             </a>
           );
@@ -280,8 +327,8 @@ export function MessageRow({
   const addReminder = useZoreon((s) => s.addReminder);
   const currentUserId = useZoreon((s) => s.currentUserId);
   const myHandle = useZoreon((s) => s.users.find((u) => u.id === s.currentUserId)?.handle);
-  const replies = useZoreon(
-    (s) => s.messages.reduce((n, m) => n + (m.parentId === message.id ? 1 : 0), 0),
+  const replies = useZoreon((s) =>
+    s.messages.reduce((n, m) => n + (m.parentId === message.id ? 1 : 0), 0),
   );
   const [pickerOpen, setPickerOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -291,7 +338,9 @@ export function MessageRow({
   const edited = Boolean(message.updatedAt && message.updatedAt > message.createdAt);
 
   if (message.system) {
-    return <p className="mx-auto my-3 max-w-lg text-center text-xs text-fg-subtle">{message.body}</p>;
+    return (
+      <p className="mx-auto my-3 max-w-lg text-center text-xs text-fg-subtle">{message.body}</p>
+    );
   }
 
   const existingIds = new Set(message.reactions.map((r) => r.id));
@@ -324,7 +373,11 @@ export function MessageRow({
               {author ? (
                 <ProfilePopover user={author}>
                   {(open) => (
-                    <button type="button" onClick={open} className="text-sm font-semibold hover:underline">
+                    <button
+                      type="button"
+                      onClick={open}
+                      className="text-sm font-semibold hover:underline"
+                    >
                       {author.name}
                     </button>
                   )}
@@ -354,7 +407,10 @@ export function MessageRow({
                 className="w-full rounded-sm border border-border bg-composer px-2 py-1 text-sm outline-none"
               />
               <div className="flex gap-2">
-                <button type="submit" className="h-7 rounded-sm bg-accent px-2 text-xs text-accent-fg">
+                <button
+                  type="submit"
+                  className="h-7 rounded-sm bg-accent px-2 text-xs text-accent-fg"
+                >
                   Save
                 </button>
                 <button
@@ -378,7 +434,9 @@ export function MessageRow({
                 onClick={() => toggleReaction(message.id, r.id, r.label)}
                 className={cn(
                   "rounded-pill border px-2 py-0.5 text-xs tabular-nums",
-                  r.mine ? "border-accent bg-accent-soft text-fg" : "border-border bg-panel text-fg-muted",
+                  r.mine
+                    ? "border-accent bg-accent-soft text-fg"
+                    : "border-border bg-panel text-fg-muted",
                 )}
               >
                 {r.label} {r.count}
@@ -391,7 +449,9 @@ export function MessageRow({
                 onClick={() => setPickerOpen((o) => !o)}
                 className={cn(
                   "inline-flex size-6 items-center justify-center rounded-pill border border-border text-fg-subtle hover:bg-elevated hover:text-fg",
-                  pickerOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus-visible:opacity-100",
+                  pickerOpen
+                    ? "opacity-100"
+                    : "opacity-0 group-hover:opacity-100 focus-visible:opacity-100",
                 )}
               >
                 <Plus className="size-3" />
@@ -422,7 +482,9 @@ export function MessageRow({
                 onClick={() => setMenuOpen((o) => !o)}
                 className={cn(
                   "inline-flex size-6 items-center justify-center rounded-pill border border-border text-fg-subtle hover:bg-elevated",
-                  menuOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus-visible:opacity-100",
+                  menuOpen
+                    ? "opacity-100"
+                    : "opacity-0 group-hover:opacity-100 focus-visible:opacity-100",
                 )}
               >
                 <MoreHorizontal className="size-3" />
@@ -572,12 +634,7 @@ export function Composer({ parentId }: { parentId?: string }) {
     if (!mentionOpen) return [];
     const q = mentionQ.toLowerCase();
     return users
-      .filter(
-        (u) =>
-          !q ||
-          u.handle.toLowerCase().includes(q) ||
-          u.name.toLowerCase().includes(q),
-      )
+      .filter((u) => !q || u.handle.toLowerCase().includes(q) || u.name.toLowerCase().includes(q))
       .slice(0, 8);
   }, [mentionOpen, mentionQ, users]);
 
@@ -655,7 +712,10 @@ export function Composer({ parentId }: { parentId?: string }) {
       ? null
       : typingPeers.length === 1
         ? `${typingPeers[0]!.userName} is typing…`
-        : `${typingPeers.map((p) => p.userName).slice(0, 2).join(", ")} are typing…`;
+        : `${typingPeers
+            .map((p) => p.userName)
+            .slice(0, 2)
+            .join(", ")} are typing…`;
 
   return (
     <form
@@ -711,7 +771,11 @@ export function Composer({ parentId }: { parentId?: string }) {
           ref={ref}
           value={value}
           rows={2}
-          placeholder={parentId ? "Reply in thread" : "Message · @mention · /shrug /tableflip /invite · **markdown**"}
+          placeholder={
+            parentId
+              ? "Reply in thread"
+              : "Message · @mention · /shrug /tableflip /invite · **markdown**"
+          }
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
@@ -758,7 +822,9 @@ export function Composer({ parentId }: { parentId?: string }) {
               </>
             ) : null}
             {flash ? <span className="text-xs text-fg-subtle">{flash}</span> : null}
-            <p className="hidden text-xs text-fg-subtle sm:block">Return to send · drafts auto-saved</p>
+            <p className="hidden text-xs text-fg-subtle sm:block">
+              Return to send · drafts auto-saved
+            </p>
           </div>
           <button
             type="submit"
