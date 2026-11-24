@@ -2,6 +2,16 @@
 // SPDX-License-Identifier: LicenseRef-Zyvor-Production-2.0
 
 import type { ParsedSearch } from "./search-parse.ts";
+import { parseMarkerLine } from "./timeline-insights.ts";
+import { hasUpdateMarker } from "./status-cadence.ts";
+
+/** Does a message body carry the given incident marker line? */
+export function matchesIs(body: string, is: NonNullable<ParsedSearch["is"]>): boolean {
+  const lines = body.split("\n").slice(0, 200);
+  if (is === "update") return lines.some((l) => hasUpdateMarker(l));
+  const want = is === "followup" ? "followUp" : is;
+  return lines.some((l) => parseMarkerLine(l)?.kind === want);
+}
 
 export type SearchRow = {
   id: string;
@@ -27,7 +37,7 @@ export function canSeeChannel(
   }
 }
 
-/** Apply from:/in:/before:/after:/has:link filters (case-insensitive substring for ids). */
+/** Apply from:/in:/before:/after:/has:link/is: filters (case-insensitive substring for ids). */
 export function applySearchFilters<T extends SearchRow>(rows: T[], p: ParsedSearch): T[] {
   let out = rows;
   if (p.inChannel) {
@@ -45,6 +55,10 @@ export function applySearchFilters<T extends SearchRow>(rows: T[], p: ParsedSear
   if (p.before) {
     const t = Date.parse(p.before);
     if (!Number.isNaN(t)) out = out.filter((r) => Number(r.created_at) <= t);
+  }
+  if (p.is) {
+    const k = p.is;
+    out = out.filter((r) => matchesIs(r.body, k));
   }
   if (p.has === "link") out = out.filter((r) => /https?:\/\//i.test(r.body));
   return out;

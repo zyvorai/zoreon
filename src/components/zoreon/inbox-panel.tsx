@@ -1,7 +1,9 @@
 // Copyright 2026 Zyvor AI Labs · https://zyvor.dev
 // SPDX-License-Identifier: LicenseRef-Zyvor-Production-2.0
 
+import { useMemo } from "react";
 import { useZoreon } from "@/store/use-zoreon";
+import { bucketReminders } from "@/lib/zoreon/remind-when";
 
 export function InboxPanel() {
   const inboxMode = useZoreon((s) => s.inboxMode);
@@ -12,6 +14,11 @@ export function InboxPanel() {
   const jumpToMessage = useZoreon((s) => s.jumpToMessage);
   const removeBookmark = useZoreon((s) => s.removeBookmark);
   const completeReminder = useZoreon((s) => s.completeReminder);
+  const snoozeReminder = useZoreon((s) => s.snoozeReminder);
+  const buckets = useMemo(
+    () => bucketReminders(reminders, Date.now(), new Date().getTimezoneOffset()),
+    [reminders],
+  );
   const setInboxMode = useZoreon((s) => s.setInboxMode);
 
   if (inboxMode === "none") return null;
@@ -90,31 +97,65 @@ export function InboxPanel() {
           reminders.length === 0 ? (
             <p className="px-2 py-6 text-center text-sm text-fg-subtle">No reminders</p>
           ) : (
-            <ul className="space-y-2">
-              {reminders.map((r) => (
-                <li key={r.id} className="rounded-sm border border-border px-3 py-2">
-                  <p className="text-xs text-fg-subtle">
-                    {new Date(r.remindAt).toLocaleString()}
-                  </p>
-                  <button
-                    type="button"
-                    className="mt-0.5 w-full text-left text-sm hover:underline"
-                    onClick={() => jumpToMessage(r.channelId, r.messageId)}
-                  >
-                    {r.snippet || "(empty)"}
-                  </button>
-                  <div className="mt-1 flex justify-end">
-                    <button
-                      type="button"
-                      className="text-xs text-accent hover:underline"
-                      onClick={() => void completeReminder(r.id)}
-                    >
-                      Done
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <div className="space-y-3">
+              {(
+                [
+                  ["Overdue", buckets.overdue],
+                  ["Today", buckets.today],
+                  ["Later", buckets.upcoming],
+                ] as const
+              ).map(([label, rows]) =>
+                rows.length === 0 ? null : (
+                  <section key={label}>
+                    <h3 className="mb-1 px-1 text-xs font-medium uppercase text-fg-subtle">
+                      {label} ({rows.length})
+                    </h3>
+                    <ul className="space-y-2">
+                      {rows.map((r) => (
+                        <li key={r.id} className="rounded-sm border border-border px-3 py-2">
+                          <p className="text-xs text-fg-subtle">
+                            {new Date(r.remindAt).toLocaleString()}
+                          </p>
+                          <button
+                            type="button"
+                            className="mt-0.5 w-full text-left text-sm hover:underline"
+                            onClick={() => jumpToMessage(r.channelId, r.messageId)}
+                          >
+                            {r.snippet || "(empty)"}
+                          </button>
+                          <div className="mt-1 flex items-center justify-end gap-3">
+                            {(
+                              [
+                                ["1h", "1h"],
+                                ["3h", "3h"],
+                                ["tomorrow", "Tomorrow"],
+                              ] as const
+                            ).map(([when, text]) => (
+                              <button
+                                key={when}
+                                type="button"
+                                className="text-xs text-fg-subtle hover:text-fg hover:underline"
+                                title={`Snooze until ${when === "tomorrow" ? "tomorrow 9am" : `in ${when}`}`}
+                                onClick={() => void snoozeReminder(r.id, when)}
+                              >
+                                Snooze {text}
+                              </button>
+                            ))}
+                            <button
+                              type="button"
+                              className="text-xs text-accent hover:underline"
+                              onClick={() => void completeReminder(r.id)}
+                            >
+                              Done
+                            </button>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ),
+              )}
+            </div>
           )
         ) : null}
       </div>

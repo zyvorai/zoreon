@@ -2,7 +2,18 @@
 
 ## Unreleased
 
-### Added
+### Added (round 3)
+
+- Status-update cadence: `getIncidentStatus` server function (severity `sev1`/`sev2`/`sev3` or `intervalMinutes`, optional `owner`) reports when the next `UPDATE:`/`STATUS:` message is due, whether it is overdue, and open follow-ups (aged, oldest first, owner filter, unowned count). Channel header gets an "Update cadence" selector and overdue indicator.
+- Reminders: `snoozeReminder` (same time grammar as `addReminder`; owner-checked) with Snooze 1h / 3h / Tomorrow buttons, and the Reminders inbox is split into Overdue / Today / Later.
+- Search: `is:decision|followup|note|update` operator (works in SQL mode and filters Mattermost hits).
+- Integration tests: `sql-queries.test.ts` runs the real search, timeline and reminder SQL against in-memory PGlite with all migrations (no Docker). SQL moved into `src/lib/zoreon/sql-queries.ts` so tests execute the shipped statements.
+- Research notes: `docs/RESEARCH.md` round 3.
+
+### Dependencies (round 3)
+
+- In range: lucide-react 1.78 -> 1.79. Re-checked and still held: typescript 7 (typescript-eslint peer range), @types/node 26 (CI/Docker are Node 24), nitro (only an rc is newer).
+- better-auth 1.7.27 evaluated and **held at 1.6.x**. Typecheck shows exactly two breaks: `genericOAuthClient` is gone from `better-auth/client/plugins`, and `auth.api.signInWithOAuth2` is gone. In 1.7 the `genericOAuth` plugin registers providers as core social providers: sign-in goes through `signIn.social` / `auth.api.signInSocial` (`provider` instead of `providerId`) and the callback is the core `/api/auth/callback/<id>` instead of `/api/auth/oauth2/callback/<id>`. Porting the two call sites is mechanical, but the auth broker's preview client only accepts `https://*.grok-sandbox.com/api/auth/oauth2/callback/*` (see `src/lib/auth/preview.ts`), so sign-in would fail until the broker allows the new path (a per-provider `redirectURI` override would pin the host and break dynamic preview origins). Needs a broker change; not ported, and nothing could be tested against the broker here.
 
 - Export formats `csv`, `retro` (incident review skeleton), `digest` (catch-up brief) and a `highlightsOnly` filter; JSON gains an `insights` object. DECISION:/TODO:/NOTE:/checkbox markers are extracted with owners. Export button is now a menu. See `docs/TIMELINE.md`. Inspired by incident.io (pinned/decision timelines), Mattermost Playbooks (retrospective reports), Rootly/FireHydrant (notes, action items, catch-up).
 - Reminders accept natural times (`in 30m`, `3pm`, `tomorrow 9am`, `friday`) via `when` + `tzOffsetMinutes`, and `remindAt` is now validated (future, within a year).

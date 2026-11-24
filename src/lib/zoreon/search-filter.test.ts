@@ -31,3 +31,24 @@ test("applySearchFilters", () => {
   assert.deepEqual(f("after:garbage"), ["1", "2"]);
   assert.deepEqual(f("in:ops from:ann"), []);
 });
+
+test("is: filters by incident marker", () => {
+  const marked = [
+    { id: "d", channel_id: "c", body: "DECISION: roll back", created_at: 1, author_id: "u" },
+    { id: "f", channel_id: "c", body: "hi\n- [ ] file ticket @bob", created_at: 2, author_id: "u" },
+    { id: "n", channel_id: "c", body: "note: deploy at 3", created_at: 3, author_id: "u" },
+    { id: "u", channel_id: "c", body: "STATUS: mitigated", created_at: 4, author_id: "u" },
+    { id: "x", channel_id: "c", body: "we made a decision: later", created_at: 5, author_id: "u" },
+  ];
+  const f = (q: string) => applySearchFilters(marked, parseSearchQuery(q)).map((r) => r.id);
+  assert.deepEqual(f("is:decision"), ["d"]);
+  assert.deepEqual(f("is:follow-up"), ["f"]);
+  assert.deepEqual(f("is:todo"), ["f"]);
+  assert.deepEqual(f("is:note"), ["n"]);
+  assert.deepEqual(f("is:update"), ["u"]);
+  assert.deepEqual(f("is:bogus"), ["d", "f", "n", "u", "x"]);
+  const p = parseSearchQuery("is:decision rollback");
+  assert.equal(p.freeText, "rollback");
+  assert.equal(p.is, "decision");
+  assert.ok(!p.mmTerms.includes("is:"));
+});

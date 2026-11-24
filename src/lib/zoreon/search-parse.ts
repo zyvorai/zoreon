@@ -3,7 +3,8 @@
 
 /**
  * Parse Slack-like search modifiers into Mattermost/SQL-friendly pieces.
- * Supported: from:handle, in:#channel|name, has:link|file|reaction, before:YYYY-MM-DD, after:YYYY-MM-DD
+ * Supported: from:handle, in:#channel|name, has:link|file|reaction, before:YYYY-MM-DD, after:YYYY-MM-DD,
+ * is:decision|followup|note|update (messages carrying that incident marker; Zulip-style `is:`)
  */
 export type ParsedSearch = {
   freeText: string;
@@ -12,6 +13,7 @@ export type ParsedSearch = {
   has?: "link" | "file" | "reaction";
   before?: string;
   after?: string;
+  is?: "decision" | "followup" | "note" | "update";
   /** Mattermost search terms string */
   mmTerms: string;
 };
@@ -22,7 +24,7 @@ export function escapeLike(s: string): string {
 }
 
 const MOD =
-  /\b(from|in|has|before|after):([^\s]+)/gi;
+  /\b(from|in|has|before|after|is):([^\s]+)/gi;
 
 export function parseSearchQuery(raw: string): ParsedSearch {
   const parts: string[] = [];
@@ -31,6 +33,7 @@ export function parseSearchQuery(raw: string): ParsedSearch {
   let has: ParsedSearch["has"];
   let before: string | undefined;
   let after: string | undefined;
+  let is: ParsedSearch["is"];
 
   const cleaned = raw.replace(MOD, (_, key: string, val: string) => {
     const k = key.toLowerCase();
@@ -39,6 +42,10 @@ export function parseSearchQuery(raw: string): ParsedSearch {
     else if (k === "in") inChannel = v;
     else if (k === "has" && ["link", "file", "reaction"].includes(v.toLowerCase())) {
       has = v.toLowerCase() as ParsedSearch["has"];
+    } else if (k === "is") {
+      const w = v.toLowerCase().replace(/[-_]/g, "");
+      if (w === "decision" || w === "note" || w === "update") is = w;
+      else if (w === "followup" || w === "todo" || w === "action") is = "followup";
     } else if (k === "before") before = v;
     else if (k === "after") after = v;
     return " ";
@@ -59,6 +66,7 @@ export function parseSearchQuery(raw: string): ParsedSearch {
     has,
     before,
     after,
+    is,
     mmTerms: parts.join(" ").trim() || freeText,
   };
 }

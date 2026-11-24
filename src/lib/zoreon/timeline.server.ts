@@ -3,14 +3,15 @@
 
 import type { VerifiedUser } from "@/lib/auth/verify.server";
 import { type ExportRequest } from "./timeline-request";
-import { renderExport } from "./timeline-insights";
+import { extractInsights, renderExport } from "./timeline-insights";
+import { computeIncidentStatus, type CadenceRequest } from "./status-cadence";
 import { buildTimeline, type TimelineAuthor, type TimelineMessage } from "./timeline-export";
 
 function safeFilePart(s: string): string {
   return s.replace(/[^A-Za-z0-9_-]/g, "_").slice(0, 40) || "channel";
 }
 
-export async function runTimelineExport(req: ExportRequest, session: VerifiedUser | null) {
+async function loadTimeline(req: ExportRequest, session: VerifiedUser | null) {
   const { isMattermostMessagingEnabled, loadChannelForExportMattermost } =
     await import("./mattermost-workspace.server");
   let channelName: string;
@@ -40,22 +41,8 @@ export async function runTimelineExport(req: ExportRequest, session: VerifiedUse
     }
     channelName = ch[0].name;
     // Parameterised: channel id and bounds are bound values, never interpolated.
-    const rows = await sql<{
-      id: string;
-      author_id: string;
-      body: string;
-      created_at: number;
-      parent_id: string | null;
-      system: boolean;
-    }>`
-      select id, author_id, body, created_at, parent_id, system
-      from agora_messages
-      where channel_id = ${req.channelId}
-        and created_at >= ${req.since ?? 0}
-        and created_at <= ${req.until ?? Number.MAX_SAFE_INTEGER}
-      order by created_at asc
-      limit 5001
-    `;
+    const { selectTimelineRows } = await import("./sql-queries");
+    const rows = await selectTimelineRows(sql, req.channelId, req.since, req.until);
     messages = rows.map((r) => ({
       id: r.id,
       authorId: r.author_id,
@@ -76,6 +63,11 @@ export async function runTimelineExport(req: ExportRequest, session: VerifiedUse
     until: req.until,
     authors,
   });
+  return { timeline, channelName };
+}
+
+export async function runTimelineExport(req: ExportRequest, session: VerifiedUser | null) {
+  const { timeline, channelName } = await loadTimeline(req, session);
   const rendered = renderExport(timeline, req.format, req.highlightsOnly);
   const { writeAudit } = await import("./admin.server");
   await writeAudit({
@@ -94,6 +86,18 @@ export async function runTimelineExport(req: ExportRequest, session: VerifiedUse
     mime: rendered.mime,
     content: rendered.content,
     entries: rendered.entries,
+    truncated: timeline.truncated,
+  };
+}
+
+/** Status-update cadence and open follow-ups for a channel. Read-only; no audit row. */
+export async function runIncidentStatus(req: CadenceRequest, session: VerifiedUser | null) {
+  const { timeline } = await loadTimeline(
+    { channelId: req.channelId, format: "json", highlightsOnly: false },
+    session,
+  );
+  return {
+    ...computeIncidentStatus(timeline.entries, extractInsights(timeline.entries), req, Date.now()),
     truncated: timeline.truncated,
   };
 }

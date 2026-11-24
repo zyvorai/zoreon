@@ -71,3 +71,22 @@ test("resolveRemindAt validates both input shapes", () => {
   assert.throws(() => resolveRemindAt({ remindAt: NOW + 400 * 24 * H }, NOW), /year away/);
   assert.throws(() => resolveRemindAt({ when: "9999w" }, NOW), /year away/);
 });
+
+test("bucketReminders splits overdue / today / upcoming in caller-local time", async () => {
+  const { bucketReminders } = await import("./remind-when.ts");
+  const rows = [
+    { id: "late", remindAt: NOW - H },
+    { id: "eve", remindAt: Date.UTC(2026, 0, 7, 23) },
+    { id: "tom", remindAt: Date.UTC(2026, 0, 8, 1) },
+    { id: "next", remindAt: NOW + 5 * 24 * H },
+  ];
+  const b = bucketReminders(rows, NOW, 0);
+  assert.deepEqual(b.overdue.map((r) => r.id), ["late"]);
+  assert.deepEqual(b.today.map((r) => r.id), ["eve"]);
+  assert.deepEqual(b.upcoming.map((r) => r.id), ["tom", "next"]);
+  // UTC+2 (offset -120): local day ends 22:00 UTC, so 23:00 UTC is already tomorrow.
+  const b2 = bucketReminders(rows, NOW, -120);
+  assert.deepEqual(b2.today.map((r) => r.id), []);
+  assert.deepEqual(bucketReminders([], NOW).overdue, []);
+  assert.deepEqual(bucketReminders(rows, NOW, Number.NaN).today.map((r) => r.id), ["eve"]);
+});
