@@ -9,6 +9,7 @@ test("accepts a valid request with defaults", () => {
   assert.deepEqual(parseExportRequest({ channelId: "ch-cutover" }), {
     channelId: "ch-cutover",
     format: "markdown",
+    highlightsOnly: false,
     since: undefined,
     until: undefined,
   });

@@ -324,7 +324,7 @@ export const searchMessages = createServerFn({ method: "POST" })
     async ({
       data,
     }): Promise<{ id: string; channelId: string; body: string; createdAt: number; authorId: string }[]> => {
-      await requireSession();
+      const session = await requireSession();
       const { parseSearchQuery, escapeLike } = await import("./search-parse");
       const parsed = parseSearchQuery(data.terms);
       const { isMattermostMessagingEnabled, searchPostsMattermost } = await import(
@@ -338,42 +338,28 @@ export const searchMessages = createServerFn({ method: "POST" })
       await ensureWorkspaceSeeded();
       const sql = await getSql();
       const q = `%${escapeLike((parsed.freeText || data.terms).trim())}%`;
-      let rows = await sql<{
+      const { applySearchFilters, canSeeChannel } = await import("./search-filter");
+      const { ensureProfileForSession } = await import("./workspace.server");
+      const me = session ? await ensureProfileForSession(session) : null;
+      const found = await sql<{
         id: string;
         channel_id: string;
         body: string;
         created_at: number;
         author_id: string;
+        kind: string;
+        member_ids: string;
       }>`
-        select id, channel_id, body, created_at, author_id
-        from agora_messages
-        where body ilike ${q}
-        order by created_at desc
-        limit 80
+        select m.id, m.channel_id, m.body, m.created_at, m.author_id, c.kind, c.member_ids
+        from agora_messages m
+        join agora_channels c on c.id = m.channel_id
+        where m.body ilike ${q}
+        order by m.created_at desc
+        limit 400
       `;
-      if (parsed.inChannel) {
-        const ch = parsed.inChannel.toLowerCase();
-        rows = rows.filter(
-          (r) =>
-            r.channel_id.toLowerCase().includes(ch) ||
-            r.channel_id.toLowerCase() === ch,
-        );
-      }
-      if (parsed.from) {
-        const f = parsed.from.toLowerCase();
-        rows = rows.filter((r) => r.author_id.toLowerCase().includes(f));
-      }
-      if (parsed.after) {
-        const t = Date.parse(parsed.after);
-        if (!Number.isNaN(t)) rows = rows.filter((r) => Number(r.created_at) >= t);
-      }
-      if (parsed.before) {
-        const t = Date.parse(parsed.before);
-        if (!Number.isNaN(t)) rows = rows.filter((r) => Number(r.created_at) <= t);
-      }
-      if (parsed.has === "link") {
-        rows = rows.filter((r) => /https?:\/\//i.test(r.body));
-      }
+      // DMs are only searchable by their members.
+      const visible = found.filter((r) => canSeeChannel(r.kind, r.member_ids, me));
+      const rows = applySearchFilters(visible, parsed);
       return rows.slice(0, 40).map((r) => ({
         id: r.id,
         channelId: r.channel_id,
@@ -416,7 +402,13 @@ export const editMessage = createServerFn({ method: "POST" })
 
 export const exportTimeline = createServerFn({ method: "POST" })
   .validator(
-    (input: { channelId: string; format?: "markdown" | "json"; since?: number; until?: number }) =>
+    (input: {
+      channelId: string;
+      format?: "markdown" | "json" | "csv" | "retro" | "digest";
+      highlightsOnly?: boolean;
+      since?: number;
+      until?: number;
+    }) =>
       input,
   )
   .handler(
@@ -562,13 +554,30 @@ export const listReminders = createServerFn({ method: "GET" }).handler(async () 
 
 export const addReminder = createServerFn({ method: "POST" })
   .validator(
-    (input: { messageId: string; channelId: string; snippet: string; remindAt: number }) => input,
+    (input: {
+      messageId: string;
+      channelId: string;
+      snippet: string;
+      /** Epoch ms; or pass `when` ("in 30m", "3pm", "tomorrow 9am") instead. */
+      remindAt?: number;
+      when?: string;
+      /** `new Date().getTimezoneOffset()` of the caller, used for clock times in `when`. */
+      tzOffsetMinutes?: number;
+    }) => input,
   )
   .handler(async ({ data }) => {
     const session = await requireSession();
     if (!session?.email) throw new Error("Email required");
     const { addReminder: add } = await import("./extras.server");
-    return add({ email: session.email, ...data });
+    const { resolveRemindAt } = await import("./remind-when");
+    const remindAt = resolveRemindAt(data, Date.now());
+    return add({
+      email: session.email,
+      messageId: data.messageId,
+      channelId: data.channelId,
+      snippet: data.snippet,
+      remindAt,
+    });
   });
 
 export const completeReminder = createServerFn({ method: "POST" })

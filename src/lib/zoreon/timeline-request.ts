@@ -1,9 +1,14 @@
 // Copyright 2026 Zyvor AI Labs · https://zyvor.dev
 // SPDX-License-Identifier: LicenseRef-Zyvor-Production-2.0
 
+export const EXPORT_FORMATS = ["markdown", "json", "csv", "retro", "digest"] as const;
+export type ExportFormat = (typeof EXPORT_FORMATS)[number];
+
 export type ExportRequest = {
   channelId: string;
-  format: "markdown" | "json";
+  format: ExportFormat;
+  /** Keep only messages carrying DECISION:/TODO:/NOTE: markers (insights still use the full range). */
+  highlightsOnly: boolean;
   since?: number;
   until?: number;
 };
@@ -25,11 +30,21 @@ export function parseExportRequest(raw: unknown): ExportRequest {
     throw new Error("Invalid channelId");
   }
   const format = r.format ?? "markdown";
-  if (format !== "markdown" && format !== "json") throw new Error("Invalid format");
+  if (typeof format !== "string" || !(EXPORT_FORMATS as readonly string[]).includes(format)) {
+    throw new Error("Invalid format");
+  }
+  const hl = r.highlightsOnly ?? false;
+  if (typeof hl !== "boolean") throw new Error("Invalid highlightsOnly");
   const since = optTime(r.since, "since");
   const until = optTime(r.until, "until");
   if (since !== undefined && until !== undefined && since > until) {
     throw new Error("Invalid range: since is after until");
   }
-  return { channelId: r.channelId, format, since, until };
+  return {
+    channelId: r.channelId,
+    format: format as ExportFormat,
+    highlightsOnly: hl,
+    since,
+    until,
+  };
 }

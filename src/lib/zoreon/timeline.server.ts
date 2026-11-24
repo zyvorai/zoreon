@@ -3,22 +3,16 @@
 
 import type { VerifiedUser } from "@/lib/auth/verify.server";
 import { type ExportRequest } from "./timeline-request";
-import {
-  buildTimeline,
-  timelineToJson,
-  timelineToMarkdown,
-  type TimelineAuthor,
-  type TimelineMessage,
-} from "./timeline-export";
+import { renderExport } from "./timeline-insights";
+import { buildTimeline, type TimelineAuthor, type TimelineMessage } from "./timeline-export";
 
 function safeFilePart(s: string): string {
   return s.replace(/[^A-Za-z0-9_-]/g, "_").slice(0, 40) || "channel";
 }
 
 export async function runTimelineExport(req: ExportRequest, session: VerifiedUser | null) {
-  const { isMattermostMessagingEnabled, loadChannelForExportMattermost } = await import(
-    "./mattermost-workspace.server"
-  );
+  const { isMattermostMessagingEnabled, loadChannelForExportMattermost } =
+    await import("./mattermost-workspace.server");
   let channelName: string;
   let messages: TimelineMessage[];
   let authors: Record<string, TimelineAuthor> = {};
@@ -82,7 +76,7 @@ export async function runTimelineExport(req: ExportRequest, session: VerifiedUse
     until: req.until,
     authors,
   });
-  const json = req.format === "json";
+  const rendered = renderExport(timeline, req.format, req.highlightsOnly);
   const { writeAudit } = await import("./admin.server");
   await writeAudit({
     actorEmail: session?.email,
@@ -90,15 +84,16 @@ export async function runTimelineExport(req: ExportRequest, session: VerifiedUse
     meta: {
       channelId: req.channelId,
       format: req.format,
+      highlightsOnly: req.highlightsOnly,
       entries: timeline.entries.length,
       truncated: timeline.truncated,
     },
   });
   return {
-    filename: `timeline-${safeFilePart(channelName)}.${json ? "json" : "md"}`,
-    mime: json ? "application/json" : "text/markdown",
-    content: json ? timelineToJson(timeline) : timelineToMarkdown(timeline),
-    entries: timeline.entries.length,
+    filename: `${req.format === "retro" ? "review" : "timeline"}-${safeFilePart(channelName)}.${rendered.ext}`,
+    mime: rendered.mime,
+    content: rendered.content,
+    entries: rendered.entries,
     truncated: timeline.truncated,
   };
 }

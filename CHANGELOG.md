@@ -4,11 +4,20 @@
 
 ### Added
 
+- Export formats `csv`, `retro` (incident review skeleton), `digest` (catch-up brief) and a `highlightsOnly` filter; JSON gains an `insights` object. DECISION:/TODO:/NOTE:/checkbox markers are extracted with owners. Export button is now a menu. See `docs/TIMELINE.md`. Inspired by incident.io (pinned/decision timelines), Mattermost Playbooks (retrospective reports), Rootly/FireHydrant (notes, action items, catch-up).
+- Reminders accept natural times (`in 30m`, `3pm`, `tomorrow 9am`, `friday`) via `when` + `tzOffsetMinutes`, and `remindAt` is now validated (future, within a year).
+
 - Incident timeline export: `exportTimeline` server function and an Export button in the channel header. Markdown or JSON; secrets redacted; control/bidi characters stripped; Markdown/HTML escaped; capped at 5000 messages and 8000 characters per message. Each export writes a `timeline.export` row to the audit log. See `docs/TIMELINE.md`.
 - Message rate limiting and size guard on send/edit (`ZOREON_RATE_MESSAGES_PER_MIN`, `ZOREON_MAX_MESSAGE_CHARS`) and export limiting (`ZOREON_RATE_EXPORTS_PER_MIN`), with clear errors.
 - Unit tests for all of the above (hostile Markdown/HTML, huge payloads, malformed input, SQL-shaped input).
 
-### Dependencies (major bumps)
+### Dependencies (round 2)
+
+- Majors: jose 6.2.9 -> 6.2.18 (still exact pin), kysely 0.28 -> 0.29, @electric-sql/pglite 0.5 -> 0.6, web-push 3 -> 4. Typecheck, 93 unit tests and the production build pass; the DB/push paths have no integration test here, so those four are unexercised at runtime.
+- In range: recharts 3.11.1, typescript-eslint 8.74, better-auth 1.6.35.
+- Held back: better-auth 1.7 (`genericOAuthClient` / `signInWithOAuth2` no longer exposed where `src/lib/auth` imports them; needs a migration), typescript 7 (typescript-eslint peer range), @types/node 26 (CI/Docker are Node 24), nitro (only an rc is newer).
+
+### Dependencies (earlier major bumps)
 
 Root app (verified with lint, typecheck, unit tests and build on Node 22.23):
 
@@ -34,5 +43,6 @@ Website (docs site): react / react-dom 19.3.1; build and typecheck pass.
 
 ### Fixed
 
+- Security: SQL-mode message search returned messages from DMs the caller was not a member of. DMs are now filtered by membership; search filters apply before the result cap.
 - Message search: `%`, `_` and backslash typed by users are now escaped, so they match literally instead of acting as LIKE wildcards (values were always parameterised; no SQL injection).
 - Lint gate: pre-existing `no-empty` error in `client.server.ts`.
