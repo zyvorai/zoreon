@@ -3,6 +3,7 @@
 
 import { getSql } from "@/lib/db";
 import { randomBytes } from "node:crypto";
+import { insertReminder, selectOpenReminders, updateReminderTime } from "./sql-queries";
 
 function nid(prefix: string) {
   return `${prefix}-${randomBytes(6).toString("hex")}`;
@@ -117,18 +118,7 @@ export async function listReminders(email: string | null | undefined): Promise<R
   const e = emailKey(email);
   if (!e) return [];
   const sql = await getSql();
-  const rows = await sql<{
-    id: string;
-    message_id: string;
-    channel_id: string;
-    snippet: string;
-    remind_at: number;
-    done: boolean;
-  }>`
-    select id, message_id, channel_id, snippet, remind_at, done
-    from agora_reminders where user_email = ${e} and done = false
-    order by remind_at asc limit 50
-  `;
+  const rows = await selectOpenReminders(sql, e);
   return rows.map((r) => ({
     id: r.id,
     messageId: r.message_id,
@@ -150,16 +140,41 @@ export async function addReminder(input: {
   if (!e) throw new Error("No email");
   const sql = await getSql();
   const id = nid("rm");
-  await sql`
-    insert into agora_reminders (id, user_email, message_id, channel_id, snippet, remind_at)
-    values (${id}, ${e}, ${input.messageId}, ${input.channelId}, ${input.snippet.slice(0, 200)}, ${input.remindAt})
-  `;
+  await insertReminder(sql, {
+    id,
+    email: e,
+    messageId: input.messageId,
+    channelId: input.channelId,
+    snippet: input.snippet.slice(0, 200),
+    remindAt: input.remindAt,
+  });
   return {
     id,
     messageId: input.messageId,
     channelId: input.channelId,
     snippet: input.snippet.slice(0, 200),
     remindAt: input.remindAt,
+    done: false,
+  };
+}
+
+/** Move an open reminder to a new time. Returns null when it is not the caller's or already done. */
+export async function snoozeReminder(
+  email: string,
+  reminderId: string,
+  remindAt: number,
+): Promise<ReminderRow | null> {
+  const e = emailKey(email);
+  if (!e) return null;
+  const sql = await getSql();
+  const r = (await updateReminderTime(sql, e, reminderId, remindAt))[0];
+  if (!r) return null;
+  return {
+    id: r.id,
+    messageId: r.message_id,
+    channelId: r.channel_id,
+    snippet: r.snippet,
+    remindAt: Number(r.remind_at),
     done: false,
   };
 }

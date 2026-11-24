@@ -114,3 +114,24 @@ export function resolveRemindAt(
   if (at > now + REMIND_MAX_AHEAD_MS) throw new Error("Reminder time is more than a year away");
   return at;
 }
+
+export type ReminderBuckets<T> = { overdue: T[]; today: T[]; upcoming: T[] };
+
+/**
+ * Split open reminders like Slack Later: overdue, due before the end of the
+ * caller-local day, and later. Each bucket is sorted by time ascending.
+ */
+export function bucketReminders<T extends { remindAt: number }>(
+  rows: T[],
+  now: number,
+  tzOffsetMinutes = 0,
+): ReminderBuckets<T> {
+  const tz = Number.isFinite(tzOffsetMinutes) ? tzOffsetMinutes : 0;
+  const local = now - tz * 60_000;
+  const endOfDay = local - (((local % 86_400_000) + 86_400_000) % 86_400_000) + 86_400_000 + tz * 60_000;
+  const out: ReminderBuckets<T> = { overdue: [], today: [], upcoming: [] };
+  for (const r of [...rows].sort((a, b) => a.remindAt - b.remindAt)) {
+    (r.remindAt <= now ? out.overdue : r.remindAt < endOfDay ? out.today : out.upcoming).push(r);
+  }
+  return out;
+}

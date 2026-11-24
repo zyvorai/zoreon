@@ -43,3 +43,15 @@ Method: only pages actually fetched are cited as read. Everything marked **[U]**
 Sources: incident.io blog/changelog (timeline = incident updates plus pinned messages, post-mortem drafted from timeline and decisions, suggested follow-ups), Mattermost docs (Playbooks status updates, retrospectives, `/playbook` slash commands, digest setting), Slack help (`/remind` forms, message reminders; recurrence by day only), Rootly docs (action items via slash command/emoji, catch-up brief from the Slack agent), FireHydrant docs (`add note`, `add action-item`, notes filterable on timeline). Vendor material; feature claims are marketing-leaning.
 
 Built from it: decision/follow-up/note markers and owners; incident review skeleton; catch-up digest; CSV export; natural-language reminder times. Not built: LLM summaries (untrusted-content risk, see above), recurring reminders (needs schema), slash command surface.
+
+## Round 3 (web searches this pass)
+
+Searched and read result pages: incident.io docs (roles; comms-lead role; heartbeat reminders appear only in a vendor blog, not official docs), Rootly docs/changelog (best practices: stakeholder updates on a cadence tied to severity, e.g. every 30 minutes for SEV1; smart reminders; action items), FireHydrant docs (Follow-Ups vs Tasks; `action-items` Slack command; retro started from chat), Zulip help (resolve a topic, `is:resolved` search operator), Mattermost docs (fetched: Playbooks status-update reminder timer reused on later updates; daily digest of outstanding tasks and required status updates; overdue task due dates feed the digest), Slack help (Later view: reminders with snooze 1h / 3h / tomorrow, In progress / Completed tabs; the fetched help page itself did not list snooze options, so the snooze presets come from the search summary, not a read page).
+
+Built from it:
+1. **Status-update cadence** (Rootly, Mattermost Playbooks, incident.io blog): `UPDATE:` / `STATUS:` marker, severity presets SEV1 30m / SEV2 1h / SEV3 4h, overdue indicator in the channel header. Read-only; no schema.
+2. **Open follow-up tracker with aging and owner filter** (FireHydrant follow-ups, Rootly action items, Mattermost overdue tasks): returned by the same `getIncidentStatus` call, oldest first, unowned count.
+3. **Reminder snooze + Overdue/Today/Later buckets** (Slack Later): `snoozeReminder` reuses the natural-time grammar.
+4. **`is:` search operator** (Zulip `is:resolved`): `is:decision|followup|note|update` over the marker lines.
+
+Not built: Zulip-style resolved topics and role assignment (incident.io roles, Rootly role permissions) need schema and a permission model; recurring digest DMs need a scheduler.

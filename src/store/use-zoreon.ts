@@ -7,6 +7,7 @@ import {
   addBookmark as apiAddBookmark,
   addReminder as apiAddReminder,
   completeReminder as apiCompleteReminder,
+  snoozeReminder as apiSnoozeReminder,
   createChannel as apiCreateChannel,
   createDirect as apiCreateDirect,
   deleteMessage as apiDeleteMessage,
@@ -94,6 +95,8 @@ type ZoreonState = {
     remindAt: number,
   ) => Promise<void>;
   completeReminder: (reminderId: string) => Promise<void>;
+  /** `when`: "1h", "3h", "tomorrow" (9:00 local) ... */
+  snoozeReminder: (reminderId: string, when: string) => Promise<void>;
   loadExtras: () => Promise<void>;
   setNotifPrefs: (prefs: NotifPrefs) => Promise<void>;
   setPreferredTeam: (teamId: string) => Promise<void>;
@@ -435,6 +438,12 @@ export const useZoreon = create<ZoreonState>()(
       },
       addReminder: async (messageId, channelId, snippet, remindAt) => {
         await apiAddReminder({ data: { messageId, channelId, snippet, remindAt } });
+        await get().loadExtras();
+      },
+      snoozeReminder: async (reminderId, when) => {
+        await apiSnoozeReminder({
+          data: { reminderId, when, tzOffsetMinutes: new Date().getTimezoneOffset() },
+        });
         await get().loadExtras();
       },
       completeReminder: async (reminderId) => {

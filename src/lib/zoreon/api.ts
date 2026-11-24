@@ -331,7 +331,11 @@ export const searchMessages = createServerFn({ method: "POST" })
         "./mattermost-workspace.server"
       );
       if (isMattermostMessagingEnabled()) {
-        return searchPostsMattermost(parsed.mmTerms || parsed.freeText || data.terms);
+        const hits = await searchPostsMattermost(parsed.mmTerms || parsed.freeText || data.terms);
+        if (!parsed.is) return hits;
+        const { matchesIs } = await import("./search-filter");
+        const kind = parsed.is;
+        return hits.filter((h) => matchesIs(h.body, kind));
       }
       const { ensureWorkspaceSeeded } = await import("./workspace.server");
       const { getSql } = await import("@/lib/db");
@@ -341,22 +345,8 @@ export const searchMessages = createServerFn({ method: "POST" })
       const { applySearchFilters, canSeeChannel } = await import("./search-filter");
       const { ensureProfileForSession } = await import("./workspace.server");
       const me = session ? await ensureProfileForSession(session) : null;
-      const found = await sql<{
-        id: string;
-        channel_id: string;
-        body: string;
-        created_at: number;
-        author_id: string;
-        kind: string;
-        member_ids: string;
-      }>`
-        select m.id, m.channel_id, m.body, m.created_at, m.author_id, c.kind, c.member_ids
-        from agora_messages m
-        join agora_channels c on c.id = m.channel_id
-        where m.body ilike ${q}
-        order by m.created_at desc
-        limit 400
-      `;
+      const { searchMessageRows } = await import("./sql-queries");
+      const found = await searchMessageRows(sql, q);
       // DMs are only searchable by their members.
       const visible = found.filter((r) => canSeeChannel(r.kind, r.member_ids, me));
       const rows = applySearchFilters(visible, parsed);
@@ -578,6 +568,44 @@ export const addReminder = createServerFn({ method: "POST" })
       snippet: data.snippet,
       remindAt,
     });
+  });
+
+export const snoozeReminder = createServerFn({ method: "POST" })
+  .validator(
+    (input: {
+      reminderId: string;
+      /** "1h", "3h", "tomorrow", "tomorrow 9am", "friday" ... (same grammar as reminders). */
+      when?: string;
+      remindAt?: number;
+      tzOffsetMinutes?: number;
+    }) => input,
+  )
+  .handler(async ({ data }) => {
+    const session = await requireSession();
+    if (!session?.email) throw new Error("Email required");
+    const { snoozeReminder: snooze } = await import("./extras.server");
+    const { resolveRemindAt } = await import("./remind-when");
+    const remindAt = resolveRemindAt(data, Date.now());
+    const row = await snooze(session.email, data.reminderId, remindAt);
+    if (!row) throw new Error("Reminder not found");
+    return row;
+  });
+
+export const getIncidentStatus = createServerFn({ method: "POST" })
+  .validator(
+    (input: {
+      channelId: string;
+      severity?: "sev1" | "sev2" | "sev3";
+      intervalMinutes?: number;
+      owner?: string;
+    }) => input,
+  )
+  .handler(async ({ data }) => {
+    const session = await requireSession();
+    const { parseCadenceRequest } = await import("./status-cadence");
+    const req = parseCadenceRequest(data);
+    const { runIncidentStatus } = await import("./timeline.server");
+    return runIncidentStatus(req, session);
   });
 
 export const completeReminder = createServerFn({ method: "POST" })

@@ -22,7 +22,8 @@ import { getInviteLink } from "@/lib/zoreon/api";
 import { MessageBody } from "@/components/zoreon/message-body";
 import { ProfilePopover } from "@/components/zoreon/profile-popover";
 import { HuddleBar } from "@/components/zoreon/huddle-bar";
-import { exportTimeline, setChannelPref } from "@/lib/zoreon/api";
+import { exportTimeline, getIncidentStatus, setChannelPref } from "@/lib/zoreon/api";
+import { formatDuration } from "@/lib/zoreon/timeline-insights";
 
 const QUICK_REACTIONS = [
   { id: "ack", label: "👍" },
@@ -225,6 +226,8 @@ export function MessagePane() {
           <HuddleBar channelId={channel.id} />
         </div>
       </header>
+
+      <StatusStrip channelId={channel.id} refreshKey={messages.length} />
 
       {pinned.length > 0 ? (
         <div className="flex flex-wrap gap-1 border-b border-border bg-sidebar/60 px-3 py-1.5">
@@ -836,5 +839,74 @@ export function Composer({ parentId }: { parentId?: string }) {
         </div>
       </div>
     </form>
+  );
+}
+
+type StatusInfo = Awaited<ReturnType<typeof getIncidentStatus>>;
+
+/** Opt-in cadence strip: pick a severity to be told when a status update is overdue. */
+function StatusStrip({ channelId, refreshKey }: { channelId: string; refreshKey: number }) {
+  const [sev, setSev] = useState<"" | "sev1" | "sev2" | "sev3">("");
+  const [info, setInfo] = useState<StatusInfo | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    if (!sev) {
+      setInfo(null);
+      setError(null);
+      return;
+    }
+    let live = true;
+    const load = () =>
+      getIncidentStatus({ data: { channelId, severity: sev } })
+        .then((r) => {
+          if (live) {
+            setInfo(r);
+            setError(null);
+          }
+        })
+        .catch((e: unknown) => {
+          if (live) setError(e instanceof Error ? e.message : "Status unavailable");
+        });
+    void load();
+    const t = window.setInterval(() => void load(), 60_000);
+    return () => {
+      live = false;
+      window.clearInterval(t);
+    };
+  }, [channelId, sev, refreshKey]);
+  return (
+    <div className="flex flex-wrap items-center gap-2 border-b border-border px-3 py-1 text-xs text-fg-subtle">
+      <label className="flex items-center gap-1">
+        Update cadence
+        <select
+          aria-label="Status update cadence"
+          className="h-6 rounded-sm border border-border bg-transparent px-1"
+          value={sev}
+          onChange={(ev) => setSev(ev.target.value as typeof sev)}
+        >
+          <option value="">Off</option>
+          <option value="sev1">SEV1 (30m)</option>
+          <option value="sev2">SEV2 (1h)</option>
+          <option value="sev3">SEV3 (4h)</option>
+        </select>
+      </label>
+      {error ? <span className="text-danger">{error}</span> : null}
+      {info ? (
+        <>
+          <span className={info.overdue ? "font-medium text-danger" : undefined}>
+            {info.overdue
+              ? `Status update overdue by ${formatDuration(info.overdueByMs)}`
+              : info.nextUpdateDueAt
+                ? `Next update due ${new Date(info.nextUpdateDueAt).toLocaleTimeString()}`
+                : "No messages yet"}
+          </span>
+          <span>
+            Open follow-ups: {info.openFollowUps.length}
+            {info.unowned ? ` (${info.unowned} unowned)` : ""}
+          </span>
+          <span className="opacity-70">Post "UPDATE: ..." to reset the clock</span>
+        </>
+      ) : null}
+    </div>
   );
 }
